@@ -21,6 +21,7 @@ CONF_DEVICE_NAME = "devicename"
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(SensorDLBus),
     cv.Optional(CONF_DEVICE_TYPE): sensor.sensor_schema(),
+    cv.Optional(CONF_DEVICE_NAME): text_sensor.text_sensor_schema(),
     cv.Optional("temperature_1"): sensor.sensor_schema(unit_of_measurement=UNIT_CELSIUS, icon=ICON_THERMOMETER, accuracy_decimals=1, device_class=DEVICE_CLASS_TEMPERATURE, state_class=STATE_CLASS_MEASUREMENT),
     cv.Optional("temperature_2"): sensor.sensor_schema(unit_of_measurement=UNIT_CELSIUS, icon=ICON_THERMOMETER, accuracy_decimals=1, device_class=DEVICE_CLASS_TEMPERATURE, state_class=STATE_CLASS_MEASUREMENT),
     cv.Optional("temperature_3"): sensor.sensor_schema(unit_of_measurement=UNIT_CELSIUS, icon=ICON_THERMOMETER, accuracy_decimals=1, device_class=DEVICE_CLASS_TEMPERATURE, state_class=STATE_CLASS_MEASUREMENT),
