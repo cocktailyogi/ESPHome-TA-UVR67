@@ -2,7 +2,6 @@
 #include "esphome/core/log.h"
 #include "DLBus.h"
 #include "esphome/core/helpers.h"
-//#include "esphome/components/sensor/sensor.h"
 
 namespace esphome {
 namespace sensordlbus {
