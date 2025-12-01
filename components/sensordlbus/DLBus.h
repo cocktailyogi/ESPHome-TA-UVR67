@@ -11,9 +11,12 @@ public:
   static const int DL_Input_Pin = 27;           // Arduino-Pin
   static const int EdgeBufferSize = 2000;
   static const int DL_Bus_PacketLength = 65;      // for UVR67 and UVR1611
-  static const int Tmin = 800;                    // Mikrosekunden
-  static const int Tmax = 1200;                   // Mikrosekunden
-  static const int timeout = 3000;                // Mikrosekunden
+  static constexpr int bittime = 2048; //ms
+  static constexpr int T = bittime / 2;
+  static constexpr int margin = T / 5;
+  static constexpr int Tmin = T - margin;                    // Mikrosekunden
+  static constexpr int Tmax = T + margin;                   // Mikrosekunden
+  static constexpr int timeout = 4000;                // Mikrosekunden
 
 
   // Strukturen

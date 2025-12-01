@@ -189,7 +189,7 @@ bool DLBus::captureSinglePacket() {
     }
   }
   
-  DL_Bus_Buffer[0] = 0xFF;
+  DL_Bus_Buffer[0] = 0xFF;  
   for (int i = 1; i < DL_Bus_PacketLength; i++) {
     DL_Bus_Buffer[i] = receiveByte();
   }
