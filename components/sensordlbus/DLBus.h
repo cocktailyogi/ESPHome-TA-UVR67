@@ -9,7 +9,7 @@ class DLBus {
 public:
   // Konstanten (statt #define)
   static const int DL_Input_Pin = 27;           // Arduino-Pin
-  static const int EdgeBufferSize = 2000;
+  static const int EdgeBufferSize = 1000;
   static const int DL_Bus_PacketLength = 65;      // for UVR67 and UVR1611
   static const int Tmin = 800;                    // Mikrosekunden
   static const int Tmax = 1200;                   // Mikrosekunden
