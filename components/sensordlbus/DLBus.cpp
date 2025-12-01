@@ -160,7 +160,7 @@ bool DLBus::captureSinglePacket() {
   // Registriere den Interrupt mit der statischen ISR
   attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
   unsigned long T_Start = millis();
-  
+  /*
   //wait for data
   while (edgeBufferCount < 100) {
     delay(10);
@@ -182,6 +182,8 @@ bool DLBus::captureSinglePacket() {
   }
   
   curBit = newData.pinState;
+  */
+  curBit = true;
   
   while (edgeBufferCount < 32) {
     delay(10);
