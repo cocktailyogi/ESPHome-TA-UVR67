@@ -170,6 +170,7 @@ bool DLBus::captureSinglePacket() {
   if (DL_Bus_Buffer[1] != 0x80){
     // error exit
     ESP_LOGI(TAG, "captureSinglePacket error exit");
+    ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
