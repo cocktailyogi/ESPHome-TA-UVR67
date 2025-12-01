@@ -25,11 +25,12 @@ class SensorDLBus : public PollingComponent {
   void set_output_a6_sensor(sensor::Sensor *outputA6Sensor){outputA6Sensor_ = outputA6Sensor; }
   void set_output_a7_sensor(sensor::Sensor *outputA7Sensor){outputA7Sensor_ = outputA7Sensor; }
   
-  SensorDLBus() : PollingComponent(30000) {} // 30 Seconds
-  //float get_setup_priority() const override { return esphome::setup_priority::IO; }
+  SensorDLBus() : PollingComponent(15000) {} // 15 Seconds  
+  float get_setup_priority() const override { return esphome::setup_priority::DATA; }
   
 
   void setup() override;
+  void loop() override;
   void update() override;
   
  protected:
@@ -48,8 +49,16 @@ class SensorDLBus : public PollingComponent {
   sensor::Sensor *outputA6Sensor_{nullptr};
   sensor::Sensor *outputA7Sensor_{nullptr};
   
+  // Nur Timestamp-Tracking, keine Daten-Kopie nötig!
+  unsigned long last_valid_data_timestamp_{0};
+  bool has_valid_data_{false};
+  
+  // Konstanten
+  static const unsigned long TIMEOUT_MS = 180000; // 3 Minuten
 
-
+  // Private Hilfsmethoden
+  void publish_sensors_();
+  bool is_data_stale_();
 };
 
 

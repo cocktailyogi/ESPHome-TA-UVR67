@@ -162,17 +162,7 @@ bool DLBus::captureSinglePacket() {
   unsigned long T_Start = millis();
  
   curBit = true;
-  /*
-  while (edgeBufferCount < 32) {
-    delay(10);
-    if ((millis() - T_Start) > timeout) {
-      detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-      return false;
-    }
-  }
-  */
 
-  //sync 16 Bit High
   int syncCounter = 0;
   while (syncCounter <= 16) {
     if (captureBit() == 1) {
