@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 
-# Auto-load text_sensor component
-AUTO_LOAD = ["text_sensor"]
+# WICHTIG: text_sensor als Abhängigkeit!
+DEPENDENCIES = ["text_sensor"]
 
 sensordlbus_ns = cg.esphome_ns.namespace("sensordlbus")
