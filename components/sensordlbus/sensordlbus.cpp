@@ -67,5 +67,5 @@ void SensorDLBus::update() {
 
 
 
-}  // namespace sensor_dl_bus
+}  // namespace sensordlbus
 }  // namespace esphome
