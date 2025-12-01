@@ -229,7 +229,7 @@ bool DLBus::capture(){
               bool sync = true;
               for (int i=0; i<14; i++){
                 if (captureBit() != 1) {
-                  bool sync = false;
+                  sync = false;
                   break;
                 }
               }
@@ -246,7 +246,7 @@ bool DLBus::capture(){
               byte newBit = captureBit();
               for (int i=0; i<6; i++){
                   if (newBit = 2) {
-                    bool sync = false;
+                    sync = false;
                     break;
                   }
                   syncByte = (syncByte << 1) | newBit; // shift in valid newBit
