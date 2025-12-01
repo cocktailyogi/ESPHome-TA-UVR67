@@ -69,6 +69,21 @@ void SensorDLBus::update() {
     if (this->tempSensor6_ != nullptr) 
         this->tempSensor6_->publish_state(NAN);
     
+    if (this->outputA1Sensor_ != nullptr) 
+        this->outputA1Sensor_->publish_state(NAN);
+    if (this->outputA2Sensor_ != nullptr) 
+        this->outputA2Sensor_->publish_state(NAN);
+    if (this->outputA3Sensor_ != nullptr) 
+        this->outputA3Sensor_->publish_state(NAN);
+    if (this->outputA4Sensor_ != nullptr) 
+        this->outputA4Sensor_->publish_state(NAN);
+    if (this->outputA5Sensor_ != nullptr) 
+        this->outputA5Sensor_->publish_state(NAN);
+    if (this->outputA6Sensor_ != nullptr) 
+        this->outputA6Sensor_->publish_state(NAN);
+    if (this->outputA7Sensor_ != nullptr) 
+        this->outputA7Sensor_->publish_state(NAN);
+    
     return;
   }
   
