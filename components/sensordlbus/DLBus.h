@@ -1,4 +1,3 @@
-#pragma once
 
 #ifndef DLBus_h
 #define DLBus_h

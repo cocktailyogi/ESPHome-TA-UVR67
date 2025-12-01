@@ -206,7 +206,7 @@ bool DLBus::sensorSlave(){
     }
 }
 
-bool capture(){
+bool DLBus::capture(){
   // Reset Buffer
   edgeBufferWritePos = 0;
   edgeBufferReadPos = 0;
@@ -256,7 +256,6 @@ bool capture(){
           }
       }
       
-      syncCounter = 0;
       edgeBufferWritePos = 0;
       edgeBufferReadPos = 0;
       edgeBufferCount = 0;
