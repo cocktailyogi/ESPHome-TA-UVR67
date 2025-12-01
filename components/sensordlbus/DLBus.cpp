@@ -172,6 +172,7 @@ bool DLBus::captureSinglePacket() {
       edgeBufferWritePos = 0;
       edgeBufferReadPos = 0;
       edgeBufferCount = 0;
+      yield();
     }
     if ((millis() - T_Start) > timeout) {
       detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));

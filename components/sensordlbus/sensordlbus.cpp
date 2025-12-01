@@ -34,7 +34,7 @@ void SensorDLBus::loop() {
   
   // Kleine Pause, um anderen Tasks CPU-Zeit zu geben
   yield();
-  delay(10);
+
 }
 
 void SensorDLBus::update() {
