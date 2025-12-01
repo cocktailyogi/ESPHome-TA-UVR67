@@ -93,7 +93,9 @@ int DLBus::captureBit() {
 
 unsigned char DLBus::receiveByte() {
   char rxByte = 0;
+  //StartBit detected?
   if (captureBit() == 0) {
+    //read 8 Bits
     for (int i = 0; i < 8; i++) {
       int bit = captureBit();
       if (bit == 2) {
@@ -104,6 +106,7 @@ unsigned char DLBus::receiveByte() {
         }
       }
     }
+    //StopBit
     if (captureBit() == 1) {
       return rxByte;
     }
