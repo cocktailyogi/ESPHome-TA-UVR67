@@ -166,11 +166,12 @@ bool DLBus::captureSinglePacket() {
   ESP_LOGI(TAG, "captureSinglePacket started");
   DL_Bus_Buffer[0] = 0xFF;
   DL_Bus_Buffer[1] = recieveByte();
+  DL_Bus_Buffer[2] = recieveByte();
   //check DeviceType
   if (DL_Bus_Buffer[1] != 0x80){
     // error exit
     ESP_LOGI(TAG, "captureSinglePacket error exit");
-    ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
+    ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X, Buffer[2]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1], DL_Bus_Buffer[2]);
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
