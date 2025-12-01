@@ -189,16 +189,25 @@ bool DLBus::captureSinglePacket() {
     }
   }
   
-  DL_Bus_Buffer[0] = 0xFF;  
-  for (int i = 1; i < DL_Bus_PacketLength; i++) {
+  DL_Bus_Buffer[0] = 0xFF;
+  DL_Bus_Buffer[1] = receiveByte();
+  //check DeviceType
+  if (DL_Bus_Buffer[1] != 0x80){
+    // error exit
+    detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+    return false;
+  }
+  for (int i = 2; i < DL_Bus_PacketLength; i++) {
     DL_Bus_Buffer[i] = receiveByte();
   }
   if (testChecksum() == true) {
+    // clean exit
     processData();
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return true;
   }
   else {
+    // error exit
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
