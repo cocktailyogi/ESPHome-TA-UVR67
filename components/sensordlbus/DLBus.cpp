@@ -1,5 +1,7 @@
 #include "DLBus.h"
+#include "esphome/core/log.h"
 
+static const char *TAG = "sensordlbus";
 DLBus *DLBus::instance = nullptr;
 
 DLBus::DLBus() {

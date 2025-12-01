@@ -5,7 +5,7 @@
 #define SET_BIT(byte, bit) ((byte) |= (1UL << (bit)))
 
 #include <Arduino.h>
-#include "esphome/core/log.h"
+
 
 class DLBus {
 public:
