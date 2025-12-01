@@ -190,7 +190,6 @@ bool DLBus::captureSinglePacket() {
   }
   for (int i = 2; i < DL_Bus_PacketLength; i++) {
     DL_Bus_Buffer[i] = receiveByte();
-    yield();
   }
   if (testChecksum() == true) {
     // clean exit
