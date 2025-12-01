@@ -178,7 +178,7 @@ bool DLBus::captureSinglePacket() {
   if (testChecksum() == true) {
     // clean exit
     processData();
-    ESP_LOGI(TAG, "Dataframe prozessed");
+    ESP_LOGI(TAG, "Dataframe processed");
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return true;
   }
