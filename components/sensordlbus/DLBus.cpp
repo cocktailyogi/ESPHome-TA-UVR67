@@ -258,7 +258,20 @@ bool DLBus::capture(){
               if (sync == true) {
                   //run sensorSlaveFrame
                   ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
-                  return DLBus::sensorSlave();
+
+                  // check for sync 16x true.....
+                  for (int i=0; i<16; i++){
+                    if (captureBit() != 1) {
+                      sync = false;
+                      break;
+                    }
+                  }
+                  if (sync == true) {
+                      //run captureFrame
+                      ESP_LOGI(TAG, "Sync 0x55FFFF for SensorSlaveFrame detected");
+                      return DLBus::sensorSlave();
+                  }
+                  
               }
 
           }
