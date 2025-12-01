@@ -14,7 +14,7 @@ void SensorDLBus::setup() {
   dlBus.init(); // Initialisiert das Objekt, z. B. setzt interne Zustände
   has_valid_data_ = false;
   last_valid_data_timestamp_ = 0;
-ESP_LOGI(TAG, "DL-Bus receiver started in continuous mode");
+  ESP_LOGI(TAG, "DL-Bus receiver started in continuous mode");
   ESP_LOGI(TAG, "Timeout for stale data: %lu ms (%.1f minutes)", TIMEOUT_MS, TIMEOUT_MS / 60000.0);
 }
 
@@ -34,6 +34,7 @@ void SensorDLBus::loop() {
   
   // Kleine Pause, um anderen Tasks CPU-Zeit zu geben
   yield();
+  delay(1);
 }
 
 void SensorDLBus::update() {
