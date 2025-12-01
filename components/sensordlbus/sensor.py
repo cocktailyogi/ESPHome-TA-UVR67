@@ -15,7 +15,7 @@ SensorDLBus = sensordlbus_ns.class_("SensorDLBus", cg.PollingComponent)
 
 # **Hier wird der neue Key für device_type gesetzt**
 CONF_DEVICE_TYPE = "devicetype"
-CONF_DEVICE_NAME = "device_name"
+CONF_DEVICE_NAME = "devicename"
 
 # **Erweitertes Schema mit Debug-Ausgabe**
 CONFIG_SCHEMA = cv.Schema({
