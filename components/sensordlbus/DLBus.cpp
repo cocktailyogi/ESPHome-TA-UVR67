@@ -164,9 +164,9 @@ void DLBus::processData() {
 
 bool DLBus::captureSinglePacket() {
   ESP_LOGI(TAG, "captureSinglePacket started");
-  DL_Bus_Buffer[0] = 0xFF;
+  DL_Bus_Buffer[0] = recieveByte();
   DL_Bus_Buffer[1] = recieveByte();
-  DL_Bus_Buffer[2] = recieveByte();
+  //DL_Bus_Buffer[2] = recieveByte();
   //check DeviceType
   if (DL_Bus_Buffer[1] != 0x80){
     // error exit
