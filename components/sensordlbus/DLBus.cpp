@@ -91,7 +91,7 @@ int DLBus::captureBit() {
   }
 }
 
-unsigned char DLBus::receiveByte() {
+unsigned char DLBus::recieveByte() {
   char rxByte = 0;
   //StartBit detected?
   if (captureBit() == 0) {
@@ -115,6 +115,14 @@ unsigned char DLBus::receiveByte() {
 }
 
 bool DLBus::testChecksum() {
+  unsigned char checksum = 1;
+  for (int i = 0; i < (DL_Bus_PacketLength - 1); i++) {
+    checksum = checksum + DL_Bus_Buffer[i];
+  }
+  return (checksum == DL_Bus_Buffer[DL_Bus_PacketLength - 1]);
+}
+
+bool DLBus::testChecksumSensorSlave() {
   unsigned char checksum = 1;
   for (int i = 0; i < (DL_Bus_PacketLength - 1); i++) {
     checksum = checksum + DL_Bus_Buffer[i];
@@ -153,35 +161,9 @@ void DLBus::processData() {
 }
 
 bool DLBus::captureSinglePacket() {
-  // Reset Buffer
-  edgeBufferWritePos = 0;
-  edgeBufferReadPos = 0;
-  edgeBufferCount = 0;
-  // Registriere den Interrupt mit der statischen ISR
-  attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
-  unsigned long T_Start = millis();
- 
-  curBit = true;
-
-  int syncCounter = 0;
-  while (syncCounter <= 16) {
-    if (captureBit() == 1) {
-      syncCounter++;
-    } else {
-      syncCounter = 0;
-      edgeBufferWritePos = 0;
-      edgeBufferReadPos = 0;
-      edgeBufferCount = 0;
-      yield();
-    }
-    if ((millis() - T_Start) > timeout) {
-      detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-      return false;
-    }
-  }
-  
+    
   DL_Bus_Buffer[0] = 0xFF;
-  DL_Bus_Buffer[1] = receiveByte();
+  DL_Bus_Buffer[1] = recieveByte();
   //check DeviceType
   if (DL_Bus_Buffer[1] != 0x80){
     // error exit
@@ -189,7 +171,7 @@ bool DLBus::captureSinglePacket() {
     return false;
   }
   for (int i = 2; i < DL_Bus_PacketLength; i++) {
-    DL_Bus_Buffer[i] = receiveByte();
+    DL_Bus_Buffer[i] = recieveByte();
   }
   if (testChecksum() == true) {
     // clean exit
@@ -202,4 +184,87 @@ bool DLBus::captureSinglePacket() {
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
+}
+
+bool DLBus::sensorSlave(){
+    
+    DL_Bus_Buffer[0] = recieveByte();
+    DL_Bus_Buffer[1] = recieveByte();
+    DL_Bus_Buffer[2] = recieveByte();
+    DL_Bus_Buffer[3] = recieveByte();
+
+    if (testChecksumSensorSlave() == true) {
+        // clean exit
+        //processData();
+        detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+        return true;
+    }
+    else {
+        // error exit
+        detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+        return false;
+    }
+}
+
+bool capture(){
+  // Reset Buffer
+  edgeBufferWritePos = 0;
+  edgeBufferReadPos = 0;
+  edgeBufferCount = 0;
+  // Registriere den Interrupt mit der statischen ISR
+  attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
+  T_Start = millis();
+  curBit = true;
+
+  //Sync
+  while (true) {
+      // detect if 0x55FFFF or 0xFFFF
+      if (captureBit() == 1) {
+          if (captureBit() == 1) {
+              // check for dataframe from UVR.....
+              bool sync = true;
+              for (int i=0; i<14; i++){
+                if (captureBit() != 1) {
+                  bool sync = false;
+                  break;
+                }
+              }
+              if (sync == true) {
+                  //run captureFrame
+                  ESP_LOGI(TAG, "Sync for Dataframe detected");
+                  return DLBus::captureSinglePacket();
+              }
+          }
+          else if (captureBit() == 0){
+              //check for sensor-Read-frame from Master
+              bool sync = true;
+              byte syncByte = 0b00000010;
+              byte newBit = captureBit();
+              for (int i=0; i<6; i++){
+                  if (newBit = 2) {
+                    bool sync = false;
+                    break;
+                  }
+                  syncByte = (syncByte << 1) | newBit; // shift in valid newBit
+              }
+              if (sync == true) {
+                  //run sensorSlaveFrame
+                  ESP_LOGI(TAG, "Sync for SensorSlaveFrame detected");
+                  return DLBus::sensorSlave();
+              }
+
+          }
+      }
+      
+      syncCounter = 0;
+      edgeBufferWritePos = 0;
+      edgeBufferReadPos = 0;
+      edgeBufferCount = 0;
+      yield();
+      
+      if ((millis() - T_Start) > timeout) {
+        detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+        return false;
+      }
+    
 }

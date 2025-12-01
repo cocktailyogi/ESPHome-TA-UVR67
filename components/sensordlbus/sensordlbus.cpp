@@ -23,7 +23,7 @@ void SensorDLBus::loop() {
   // und versucht, DL-Bus Pakete zu empfangen
   
   // Versuche ein Paket zu empfangen (nicht-blockierend)
-  if (dlBus.captureSinglePacket()) {
+  if (dlBus.capture()) {
     // Paket erfolgreich empfangen!
     // Daten bleiben in dlBus.lastFrame
     // Wir merken uns nur den Zeitstempel

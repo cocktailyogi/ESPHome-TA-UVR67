@@ -1,9 +1,12 @@
+#pragma once
+
 #ifndef DLBus_h
 #define DLBus_h
 
 #define SET_BIT(byte, bit) ((byte) |= (1UL << (bit)))
 
 #include <Arduino.h>
+#include "esphome/core/log.h"
 
 class DLBus {
 public:
@@ -40,7 +43,9 @@ public:
   void init();
 
   // Diese Funktion versucht, ein Paket vom DL-Bus zu erfassen.
-  bool captureSinglePacket();
+  
+  bool capture();
+  
 
   // Das zuletzt empfangene Frame
   DL_Bus_Frame lastFrame;
@@ -65,6 +70,7 @@ private:
   volatile uint16_t edgeBufferReadPos;   // Leseposition (Main)
   volatile uint16_t edgeBufferCount;     // Anzahl Elemente
   unsigned char DL_Bus_Buffer[DL_Bus_PacketLength];
+  unsigned long T_Start;
 
   // Private Hilfsfunktionen
   #ifdef DEBUGPIN_ENABLE
@@ -76,10 +82,14 @@ private:
 
   bool loadBitFromEdgeTimeBuffer();
   int captureBit();
-  unsigned char receiveByte();
+  unsigned char recieveByte();
   bool testChecksum();
+  bool testChecksumSensorSlave();
   int16_t processTemperature(char lowByte, char highbyte);
   void processData();
+  bool captureSinglePacket();
+  bool sensorSlave();
+
 };
 
 #endif  // DLBus_h
