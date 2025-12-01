@@ -160,31 +160,9 @@ bool DLBus::captureSinglePacket() {
   // Registriere den Interrupt mit der statischen ISR
   attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
   unsigned long T_Start = millis();
-  /*
-  //wait for data
-  while (edgeBufferCount < 100) {
-    delay(10);
-    if ((millis() - T_Start) > timeout) {
-      detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-      return false;
-    }
-  }
-  
-  // look for 2T
-  while (true) {
-    newData = edgeTimeBuffer[edgeBufferReadPos];
-    edgeBufferReadPos = (edgeBufferReadPos + 1) % EdgeBufferSize;
-    edgeBufferCount--;
-    edgetime = newData.edgetime;
-    if (edgetime > 2 * Tmin && edgetime < 2 * Tmax) {
-      break;
-    }
-  }
-  
-  curBit = newData.pinState;
-  */
+ 
   curBit = true;
-  
+  /*
   while (edgeBufferCount < 32) {
     delay(10);
     if ((millis() - T_Start) > timeout) {
@@ -192,7 +170,8 @@ bool DLBus::captureSinglePacket() {
       return false;
     }
   }
-  
+  */
+
   //sync 16 Bit High
   int syncCounter = 0;
   while (syncCounter <= 16) {
@@ -200,13 +179,9 @@ bool DLBus::captureSinglePacket() {
       syncCounter++;
     } else {
       syncCounter = 0;
-      while (edgeBufferCount < 32) {
-        delay(6);
-        if ((millis() - T_Start) > timeout) {
-          detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-          return false;
-        }
-      }
+      edgeBufferWritePos = 0;
+      edgeBufferReadPos = 0;
+      edgeBufferCount = 0;
     }
     if ((millis() - T_Start) > timeout) {
       detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
