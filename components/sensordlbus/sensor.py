@@ -9,8 +9,6 @@ from esphome.const import (
     STATE_CLASS_MEASUREMENT,
 )
 
-# Add dependency for text_sensor
-AUTO_LOAD = ["text_sensor"]
 
 
 # Namespace für die External Component
@@ -19,13 +17,11 @@ SensorDLBus = sensordlbus_ns.class_("SensorDLBus", cg.PollingComponent)
 
 # **Hier wird der neue Key für device_type gesetzt**
 CONF_DEVICE_TYPE = "devicetype"
-CONF_DEVICE_NAME = "devicename"
 
 # **Erweitertes Schema mit Debug-Ausgabe**
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(SensorDLBus),
     cv.Optional(CONF_DEVICE_TYPE): sensor.sensor_schema(),
-    cv.Optional(CONF_DEVICE_NAME): text_sensor.text_sensor_schema(),
     cv.Optional("temperature_1"): sensor.sensor_schema(unit_of_measurement=UNIT_CELSIUS, icon=ICON_THERMOMETER, accuracy_decimals=1, device_class=DEVICE_CLASS_TEMPERATURE, state_class=STATE_CLASS_MEASUREMENT),
     cv.Optional("temperature_2"): sensor.sensor_schema(unit_of_measurement=UNIT_CELSIUS, icon=ICON_THERMOMETER, accuracy_decimals=1, device_class=DEVICE_CLASS_TEMPERATURE, state_class=STATE_CLASS_MEASUREMENT),
     cv.Optional("temperature_3"): sensor.sensor_schema(unit_of_measurement=UNIT_CELSIUS, icon=ICON_THERMOMETER, accuracy_decimals=1, device_class=DEVICE_CLASS_TEMPERATURE, state_class=STATE_CLASS_MEASUREMENT),
@@ -53,11 +49,6 @@ async def to_code(config):
     if CONF_DEVICE_TYPE in config:
         sens = await sensor.new_sensor(config[CONF_DEVICE_TYPE])
         cg.add(var.set_device_type_sensor(sens))
-    
-    # Device Name (Text)
-    if CONF_DEVICE_NAME in config:
-        sens = await text_sensor.new_text_sensor(config[CONF_DEVICE_NAME])
-        cg.add(var.set_device_name_sensor(sens))
 
     for i in range(1, 7):
         key = f"temperature_{i}"

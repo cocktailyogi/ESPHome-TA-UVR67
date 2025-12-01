@@ -23,11 +23,7 @@ void SensorDLBus::update() {
 
             if (this->deviceTypeSensor_ != nullptr) 
                 this->deviceTypeSensor_->publish_state(dlBus.lastFrame.DeviceID);
-            if (this->deviceNameSensor_ != nullptr) {
-                const char* deviceName = getDeviceName(dlBus.lastFrame.DeviceID);
-                this->deviceNameSensor_->publish_state(deviceName);
-                //ESP_LOGD("DL-Bus", "Device: %s (ID: 0x%02X)", deviceName, dlBus.lastFrame.DeviceID);
-            }
+
             if (this->tempSensor1_ != nullptr) 
                 this->tempSensor1_->publish_state(dlBus.lastFrame.Sensor1 / 10.0);
             if (this->tempSensor2_ != nullptr) 
