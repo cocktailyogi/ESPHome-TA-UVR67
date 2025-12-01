@@ -2,6 +2,7 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
+#include "esphome/components/text_sensor/text_sensor.h"
 
 namespace esphome {
 namespace sensordlbus {
@@ -11,6 +12,7 @@ class SensorDLBus : public PollingComponent {
   
   // Setter-Methoden für die Sensoren
   void set_device_type_sensor(sensor::Sensor *deviceTypeSensor){deviceTypeSensor_ = deviceTypeSensor; }
+  void set_device_name_sensor(text_sensor::TextSensor *deviceNameSensor){deviceNameSensor_ = deviceNameSensor; }
   void set_temp_sensor1(sensor::Sensor *tempSensor1){tempSensor1_ = tempSensor1; }
   void set_temp_sensor2(sensor::Sensor *tempSensor2){tempSensor2_ = tempSensor2; }
   void set_temp_sensor3(sensor::Sensor *tempSensor3){tempSensor3_ = tempSensor3; }
@@ -34,6 +36,7 @@ class SensorDLBus : public PollingComponent {
   
  protected:
   sensor::Sensor *deviceTypeSensor_{nullptr};
+  text_sensor::TextSensor *deviceNameSensor_{nullptr};
   sensor::Sensor *tempSensor1_{nullptr};
   sensor::Sensor *tempSensor2_{nullptr};
   sensor::Sensor *tempSensor3_{nullptr};
@@ -48,7 +51,16 @@ class SensorDLBus : public PollingComponent {
   sensor::Sensor *outputA6Sensor_{nullptr};
   sensor::Sensor *outputA7Sensor_{nullptr};
   
+
+  const char* getDeviceName(uint8_t deviceID) {
+    switch (deviceID) {
+      case 0x80: return "UVR67";
+      default:   return "Unknown";
+    }
+  }
+
 };
+
 
 
 }  // namespace sensor_dl_bus

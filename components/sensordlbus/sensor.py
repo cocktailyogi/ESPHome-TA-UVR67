@@ -1,12 +1,11 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import sensor
+from esphome.components import sensor, text_sensor
 from esphome.const import (
     CONF_ID,
     UNIT_CELSIUS,
     ICON_THERMOMETER,
     DEVICE_CLASS_TEMPERATURE,
-    CONF_TEMPERATURE,
     STATE_CLASS_MEASUREMENT,
 )
 
@@ -16,6 +15,7 @@ SensorDLBus = sensordlbus_ns.class_("SensorDLBus", cg.PollingComponent)
 
 # **Hier wird der neue Key für device_type gesetzt**
 CONF_DEVICE_TYPE = "devicetype"
+CONF_DEVICE_NAME = "device_name"
 
 # **Erweitertes Schema mit Debug-Ausgabe**
 CONFIG_SCHEMA = cv.Schema({
@@ -48,6 +48,11 @@ async def to_code(config):
     if CONF_DEVICE_TYPE in config:
         sens = await sensor.new_sensor(config[CONF_DEVICE_TYPE])
         cg.add(var.set_device_type_sensor(sens))
+    
+    # Device Name (Text)
+    if CONF_DEVICE_NAME in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_DEVICE_NAME])
+        cg.add(var.set_device_name_sensor(sens))
 
     for i in range(1, 7):
         key = f"temperature_{i}"
