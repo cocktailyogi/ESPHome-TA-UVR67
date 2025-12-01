@@ -59,7 +59,6 @@ private:
   uint32_t edgetime;
   InterruptData newData;
   RingBuf<InterruptData, Ringbuffersize> edgeTimeBuffer;
-  RingBuf<bool, Ringbuffersize> bitBuffer;
   unsigned char DL_Bus_Buffer[DL_Bus_PacketLength];
 
   // Private Hilfsfunktionen

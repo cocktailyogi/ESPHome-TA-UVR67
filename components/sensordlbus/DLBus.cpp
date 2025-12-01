@@ -143,7 +143,6 @@ void DLBus::processData() {
 bool DLBus::captureSinglePacket() {
   // Leere Puffer
   edgeTimeBuffer.clear();
-  bitBuffer.clear();
   // Registriere den Interrupt mit der statischen ISR
   attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
   unsigned long T_Start = millis();
