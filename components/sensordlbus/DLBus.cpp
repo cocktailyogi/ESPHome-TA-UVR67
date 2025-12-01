@@ -171,7 +171,7 @@ bool DLBus::captureSinglePacket() {
   if (DL_Bus_Buffer[1] != 0x80){
     // error exit
     ESP_LOGI(TAG, "captureSinglePacket error exit");
-    ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X, Buffer[2]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1], DL_Bus_Buffer[2]);
+    ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1];
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
@@ -187,6 +187,7 @@ bool DLBus::captureSinglePacket() {
   }
   else {
     // error exit
+    ESP_LOGI(TAG, "Dataframe Checksum Error");
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
@@ -238,7 +239,7 @@ bool DLBus::capture(){
               }
               if (sync == true) {
                   //run captureFrame
-                  ESP_LOGI(TAG, "Sync for Dataframe detected");
+                  //ESP_LOGI(TAG, "Sync for Dataframe detected");
                   return DLBus::captureSinglePacket();
               }
           }
