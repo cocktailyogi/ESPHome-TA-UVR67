@@ -126,10 +126,10 @@ bool DLBus::testChecksum() {
 
 bool DLBus::testChecksumSensorSlave() {
   unsigned char checksum = 1;
-  for (int i = 0; i < (DL_Bus_PacketLength - 1); i++) {
+  for (int i = 0; i < 4; i++) {
     checksum = checksum + DL_Bus_Buffer[i];
   }
-  return (checksum == DL_Bus_Buffer[DL_Bus_PacketLength - 1]);
+  return (checksum == DL_Bus_Buffer[3]);
 }
 
 int16_t DLBus::processTemperature(char lowByte, char highbyte) {
@@ -212,6 +212,7 @@ bool DLBus::sensorSlave(){
 
 bool DLBus::capture(){
   // Reset Buffer
+  bool sync = false;
   edgeBufferWritePos = 0;
   edgeBufferReadPos = 0;
   edgeBufferCount = 0;
@@ -226,7 +227,7 @@ bool DLBus::capture(){
       if (captureBit() == 1) {
           if (captureBit() == 1) {
               // check for dataframe from UVR.....
-              bool sync = true;
+              sync = true;
               for (int i=0; i<14; i++){
                 if (captureBit() != 1) {
                   sync = false;
@@ -241,11 +242,12 @@ bool DLBus::capture(){
           }
           else if (captureBit() == 0){
               //check for sensor-Read-frame from Master
-              bool sync = true;
+              sync = true;
               byte syncByte = 0b00000010;
-              byte newBit = captureBit();
+              byte newBit = false;
               for (int i=0; i<6; i++){
-                  if (newBit = 2) {
+                  newBit = captureBit();
+                  if (newBit == 2) {
                     sync = false;
                     break;
                   }
