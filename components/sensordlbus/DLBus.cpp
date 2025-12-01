@@ -266,5 +266,5 @@ bool capture(){
         detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
         return false;
       }
-    
+    }
 }
