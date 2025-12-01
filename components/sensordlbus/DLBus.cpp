@@ -1,7 +1,7 @@
 #include "DLBus.h"
 #include "esphome/core/log.h"
 
-static const char *TAG = "sensordlbus";
+static const char *TAG = "DLBus";
 DLBus *DLBus::instance = nullptr;
 
 DLBus::DLBus() {
@@ -178,6 +178,7 @@ bool DLBus::captureSinglePacket() {
   if (testChecksum() == true) {
     // clean exit
     processData();
+    ESP_LOGI(TAG, "Dataframe prozessed");
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return true;
   }
@@ -251,7 +252,7 @@ bool DLBus::capture(){
               }
               if (sync == true) {
                   //run sensorSlaveFrame
-                  ESP_LOGI(TAG, "Sync for SensorSlaveFrame detected");
+                  ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
                   return DLBus::sensorSlave();
               }
 
