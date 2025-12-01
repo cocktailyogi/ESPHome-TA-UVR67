@@ -9,6 +9,10 @@ from esphome.const import (
     STATE_CLASS_MEASUREMENT,
 )
 
+# Add dependency for text_sensor
+AUTO_LOAD = ["text_sensor"]
+
+
 # Namespace für die External Component
 sensordlbus_ns = cg.esphome_ns.namespace("sensordlbus")
 SensorDLBus = sensordlbus_ns.class_("SensorDLBus", cg.PollingComponent)
