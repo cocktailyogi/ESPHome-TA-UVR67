@@ -4,13 +4,12 @@
 #define SET_BIT(byte, bit) ((byte) |= (1UL << (bit)))
 
 #include <Arduino.h>
-#include <RingBuf.h>
 
 class DLBus {
 public:
   // Konstanten (statt #define)
   static const int DL_Input_Pin = 27;           // Arduino-Pin
-  static const int Ringbuffersize = 2000;
+  static const int EdgeBuffersize = 2000;
   static const int DL_Bus_PacketLength = 65;      // for UVR67 and UVR1611
   static const int Tmin = 800;                    // Mikrosekunden
   static const int Tmax = 1200;                   // Mikrosekunden
@@ -58,7 +57,10 @@ private:
   bool curBit;
   uint32_t edgetime;
   InterruptData newData;
-  RingBuf<InterruptData, Ringbuffersize> edgeTimeBuffer;
+  InterruptData edgeTimeBuffer[EdgeBufferSize];
+  volatile uint16_t edgeBufferWritePos;  // Schreibposition (ISR)
+  volatile uint16_t edgeBufferReadPos;   // Leseposition (Main)
+  volatile uint16_t edgeBufferCount;     // Anzahl Elemente
   unsigned char DL_Bus_Buffer[DL_Bus_PacketLength];
 
   // Private Hilfsfunktionen
