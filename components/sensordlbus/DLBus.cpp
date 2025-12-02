@@ -266,8 +266,8 @@ bool DLBus::capture(){
 
   //Sync
   while (true) {
-      if (!waitForBusIdle(4)) {
-          ESP_LOGE(TAG, "Bus never became idle for 4ms");
+      if (!waitForBusIdle(3)) {
+          ESP_LOGE(TAG, "Bus never became idle for 3ms");
           return false;
       }
 
@@ -294,7 +294,7 @@ bool DLBus::capture(){
           }
           if (sync == true) {
               //run captureFrame
-              //ESP_LOGI(TAG, "Sync for Dataframe detected");
+              ESP_LOGI(TAG, "Sync for Dataframe detected");
               return DLBus::captureSinglePacket();
           }
           
@@ -312,7 +312,7 @@ bool DLBus::capture(){
               }
               syncByte = (syncByte << 1) | newBit; // shift in valid newBit
           }
-          //ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
+          ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
       
           if ((sync == true) && (syncByte == 0x55)) {
               
