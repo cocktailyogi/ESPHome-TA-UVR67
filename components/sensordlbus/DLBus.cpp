@@ -316,9 +316,6 @@ bool DLBus::capture(){
       
           if ((sync == true) && (syncByte == 0x55)) {
               
-              captureBit();
-              captureBit();
-              captureBit();
               ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
               // check for sync 16x true.....
               byte bit = false;
@@ -327,7 +324,7 @@ bool DLBus::capture(){
                 ESP_LOGI(TAG, "bit=0x%02X", bit);
                 if (bit != 1) {
                   sync = false;
-                  break;
+                  //break;
                 }
               
               }
