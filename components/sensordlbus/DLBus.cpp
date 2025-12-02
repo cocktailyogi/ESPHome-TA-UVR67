@@ -134,9 +134,6 @@ bool DLBus::testChecksumSensorSlave() {
   for (int i = 0; i < 3; i++) {
     checksum = checksum + DL_Bus_Buffer[i];
   }
-  ESP_LOGI(TAG, "checksum=0x%02X", checksum);
-  ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
-  ESP_LOGI(TAG, "Buffer[2]=0x%02X, Buffer[3]=0x%02X", DL_Bus_Buffer[2], DL_Bus_Buffer[3]);
   return (checksum == DL_Bus_Buffer[3]);
 }
 
@@ -197,7 +194,7 @@ bool DLBus::sensorSlave(){
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     if (testChecksumSensorSlave() == true) {
         // clean exit
-        //processData();
+        byte sensorAddress = DL_Bus_Buffer[2];
         ESP_LOGI(TAG, "MasterSlaveframe recieved and processed");
         return true;
     }
