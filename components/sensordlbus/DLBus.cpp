@@ -219,6 +219,40 @@ bool DLBus::sensorSlave(){
     }
 }
 
+bool DLBus::waitForBusIdle(unsigned long idleTimeMs) {
+  unsigned long startWait = millis();
+  
+  while ((millis() - startWait) < timeout) {
+    // Warte bis Pin HIGH ist
+    while (digitalRead(DL_Input_Pin) == LOW) {
+      if ((millis() - startWait) > timeout) {
+        return false;  // Timeout
+      }
+      yield();
+    }
+    
+    // Pin ist HIGH - prüfe ob er stabil bleibt
+    unsigned long highStart = millis();
+    bool stable = true;
+    
+    while ((millis() - highStart) < idleTimeMs) {
+      if (digitalRead(DL_Input_Pin) == LOW) {
+        stable = false;
+        break;
+      }
+      yield();
+    }
+    
+    if (stable) {
+      //ESP_LOGD(TAG, "Bus idle for %lu ms", idleTimeMs);
+      return true;  // Erfolg!
+    }
+  }
+  
+  //ESP_LOGW(TAG, "Timeout waiting for bus idle");
+  return false;  // Timeout
+}
+
 bool DLBus::capture(){
   // Reset Buffer
   bool sync = false;
@@ -226,12 +260,18 @@ bool DLBus::capture(){
   edgeBufferReadPos = 0;
   edgeBufferCount = 0;
   // Registriere den Interrupt mit der statischen ISR
-  attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
+  
   T_Start = millis();
   curBit = false;
 
   //Sync
   while (true) {
+      if (!waitForBusIdle(4)) {
+          ESP_LOGE(TAG, "Bus never became idle for 4ms");
+          return false;
+      }
+
+      attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
 
       while(edgeBufferCount < 3) {
           yield();
@@ -277,7 +317,7 @@ bool DLBus::capture(){
           if ((sync == true) && (syncByte == 0x55)) {
               
               ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
-
+              //captureBit()
               // check for sync 16x true.....
               for (int i=0; i<16; i++) {
                 if (captureBit() != 1) {

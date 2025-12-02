@@ -38,14 +38,9 @@ public:
   // Konstruktor
   DLBus();
 
-  // Initialisierung (sollte vor dem Start der Kommunikation aufgerufen werden)
   void init();
-
-  // Diese Funktion versucht, ein Paket vom DL-Bus zu erfassen.
-  
   bool capture();
-  
-
+   
   // Das zuletzt empfangene Frame
   DL_Bus_Frame lastFrame;
 
@@ -88,6 +83,7 @@ private:
   void processData();
   bool captureSinglePacket();
   bool sensorSlave();
+  bool waitForBusIdle(unsigned long idleTimeMs);
 
 };
 
