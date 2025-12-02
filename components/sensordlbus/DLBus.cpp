@@ -175,8 +175,8 @@ bool DLBus::captureSinglePacket() {
   //check DeviceType
   if (DL_Bus_Buffer[1] != 0x80){
     // error exit
-    ESP_LOGI(TAG, "captureSinglePacket error exit");
-    
+    ESP_LOGI(TAG, "captureSinglePacket Type error");
+    ESP_LOGI(TAG, "Buffer[1]=0x%02X", DL_Bus_Buffer[1]);
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
@@ -333,7 +333,8 @@ bool DLBus::capture(){
               if (sync == true) {
                   //run sensorSlaveFrame
                   ESP_LOGI(TAG, "Sync 0x55FFFF detected");
-                  return DLBus::sensorSlave();
+                  return DLBus::captureSinglePacket();
+                  //return DLBus::sensorSlave();
               }
               
           }
