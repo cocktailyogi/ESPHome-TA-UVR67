@@ -245,7 +245,7 @@ bool DLBus::capture(){
                   return DLBus::captureSinglePacket();
               }
           }
-          else if (captureBit() == 0){
+          else if (captureBit() == 0) {
               //check for sensor-Read-frame from Master
               sync = true;
               byte syncByte = 0b00000010;
@@ -258,12 +258,13 @@ bool DLBus::capture(){
                   }
                   syncByte = (syncByte << 1) | newBit; // shift in valid newBit
               }
+            
               if (sync == true) {
                   
                   //ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
 
                   // check for sync 16x true.....
-                  for (int i=0; i<16; i++){
+                  for (int i=0; i<16; i++) {
                     if (captureBit() != 1) {
                       sync = false;
                       break;
@@ -276,7 +277,7 @@ bool DLBus::capture(){
                   }
                   
               }
-
+		
           }
       }
       
