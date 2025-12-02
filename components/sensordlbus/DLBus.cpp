@@ -228,10 +228,18 @@ bool DLBus::capture(){
 
   //Sync
   while (true) {
+
+      while(edgeBufferCount < 16) {
+          yield();
+          if ((millis() - T_Start) > timeout) {
+            detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+            return false;
+          }
+      }
       // detect if 0x55FFFF or 0xFFFF
       if (captureBit() == 1) {
           if (captureBit() == 1) {
-              // check for dataframe from UVR.....
+              // check for dataframe from UVR..... 0xFFFF
               sync = true;
               for (int i=0; i<14; i++){
                 if (captureBit() != 1) {
@@ -246,7 +254,7 @@ bool DLBus::capture(){
               }
           }
           else if (captureBit() == 0) {
-              //check for sensor-Read-frame from Master
+              //check for sensor-Read-frame from Master ... 0x55FFFF 
               sync = true;
               byte syncByte = 0b00000010;
               byte newBit = false;
