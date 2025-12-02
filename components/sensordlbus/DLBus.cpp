@@ -233,8 +233,9 @@ bool DLBus::capture(){
   //Sync
   while (true) {
 
-      while(edgeBufferCount < 16) {
+      while(edgeBufferCount < 3) {
           yield();
+          delay(1);
           if ((millis() - T_Start) > timeout) {
             detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
             return false;
