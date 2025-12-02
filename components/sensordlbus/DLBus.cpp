@@ -316,8 +316,8 @@ bool DLBus::capture(){
                   }
                   else {
                     // error exit
-                    ESP_LOGI(TAG, "captureSinglePacket Type error");
-                    ESP_LOGI(TAG, "Buffer[1]=0x%02X", DL_Bus_Buffer[1]);
+                    ESP_LOGI(TAG, "unknown deviceType");
+                    ESP_LOGI(TAG, "deviceType=0x%02X", DL_Bus_Buffer[1]);
                     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
                     return false;
                   }
