@@ -117,7 +117,7 @@ unsigned char DLBus::recieveByte() {
 }
 
 bool DLBus::testChecksum() {
-  unsigned char checksum = 0;
+  byte checksum = 0;
   //DL_Bus_Buffer[0] = 0xFF; //bugfix, device sends 0x00
   for (int i = 0; i < (DL_Bus_PacketLength - 1); i++) {
     checksum = checksum + DL_Bus_Buffer[i];
@@ -130,7 +130,7 @@ bool DLBus::testChecksum() {
 }
 
 bool DLBus::testChecksumSensorSlave() {
-  unsigned char checksum = 0;
+  byte checksum = 0;
   for (int i = 0; i < 4; i++) {
     checksum = checksum + DL_Bus_Buffer[i];
   }
