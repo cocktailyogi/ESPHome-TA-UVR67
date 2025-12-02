@@ -136,6 +136,7 @@ bool DLBus::testChecksumSensorSlave() {
   }
   ESP_LOGI(TAG, "checksum=0x%02X", checksum);
   ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
+  ESP_LOGI(TAG, "Buffer[2]=0x%02X, Buffer[3]=0x%02X", DL_Bus_Buffer[2], DL_Bus_Buffer[3]);
   return (checksum == DL_Bus_Buffer[3]);
 }
 
