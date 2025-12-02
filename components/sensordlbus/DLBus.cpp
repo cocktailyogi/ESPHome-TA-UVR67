@@ -121,6 +121,8 @@ bool DLBus::testChecksum() {
   for (int i = 0; i < (DL_Bus_PacketLength - 1); i++) {
     checksum = checksum + DL_Bus_Buffer[i];
   }
+  ESP_LOGI(TAG, "checksum=0x%02X", checksum);
+  ESP_LOGI(TAG, "Buffer[63]=0x%02X, Buffer[64]=0x%02X", DL_Bus_Buffer[63], DL_Bus_Buffer[64]);
   return (checksum == DL_Bus_Buffer[DL_Bus_PacketLength - 1]);
 }
 
