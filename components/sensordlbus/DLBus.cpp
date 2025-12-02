@@ -131,7 +131,7 @@ bool DLBus::testChecksum() {
 
 bool DLBus::testChecksumSensorSlave() {
   byte checksum = 0;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 3; i++) {
     checksum = checksum + DL_Bus_Buffer[i];
   }
   ESP_LOGI(TAG, "checksum=0x%02X", checksum);
