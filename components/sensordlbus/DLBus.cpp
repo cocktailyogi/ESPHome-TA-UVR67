@@ -272,7 +272,7 @@ bool DLBus::capture(){
                   syncByte = (syncByte << 1) | newBit; // shift in valid newBit
               }
               ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
-              if ((sync == true) && syncByte = 0x55) {
+              if ((sync == true) && (syncByte == 0x55)) {
                   
                   ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
 
