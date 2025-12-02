@@ -227,7 +227,7 @@ bool DLBus::capture(){
   // Registriere den Interrupt mit der statischen ISR
   attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
   T_Start = millis();
-  curBit = true;
+  curBit = false;
 
   //Sync
   while (true) {
