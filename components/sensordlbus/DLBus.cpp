@@ -298,7 +298,7 @@ bool DLBus::capture(){
               }
               syncByte = (syncByte << 1) | newBit; // shift in valid newBit
           }
-          //ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
+          ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
       
           if ((sync == true) && (syncByte == 0x55)) {
               
@@ -307,7 +307,7 @@ bool DLBus::capture(){
               byte bit = false;
               for (int i=0; i < 16; i++) {
                 bit = (byte)captureBit(); 
-                //ESP_LOGI(TAG, "bit=0x%02X", bit);
+                ESP_LOGI(TAG, "bit=0x%02X", bit);
                 if (bit != 1) {
                   sync = false;
                   break;
@@ -315,7 +315,7 @@ bool DLBus::capture(){
               }
               if (sync == true) {
                   //Sync complete
-                  //ESP_LOGI(TAG, "Sync 0x55FFFF detected");
+                  ESP_LOGI(TAG, "Sync 0x55FFFF detected");
                   return DLBus::captureSinglePacket();
                   //return DLBus::sensorSlave();
               }
