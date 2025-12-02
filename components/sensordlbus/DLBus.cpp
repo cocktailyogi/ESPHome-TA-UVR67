@@ -122,6 +122,8 @@ bool DLBus::testChecksum() {
     checksum = checksum + DL_Bus_Buffer[i];
   }
   ESP_LOGI(TAG, "checksum=0x%02X", checksum);
+  ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
+  ESP_LOGI(TAG, "Buffer[61]=0x%02X, Buffer[62]=0x%02X", DL_Bus_Buffer[61], DL_Bus_Buffer[62]);
   ESP_LOGI(TAG, "Buffer[63]=0x%02X, Buffer[64]=0x%02X", DL_Bus_Buffer[63], DL_Bus_Buffer[64]);
   return (checksum == DL_Bus_Buffer[DL_Bus_PacketLength - 1]);
 }
@@ -173,7 +175,7 @@ bool DLBus::captureSinglePacket() {
   if (DL_Bus_Buffer[1] != 0x80){
     // error exit
     ESP_LOGI(TAG, "captureSinglePacket error exit");
-    ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
+    
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
@@ -190,6 +192,7 @@ bool DLBus::captureSinglePacket() {
   else {
     // error exit
     ESP_LOGI(TAG, "Dataframe Checksum Error");
+    ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
