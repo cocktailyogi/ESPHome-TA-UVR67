@@ -267,7 +267,7 @@ bool DLBus::capture(){
   //Sync
   while (true) {
       if (!waitForBusIdle(3)) {
-          ESP_LOGE(TAG, "Bus never became idle for 3ms");
+          ESP_LOGE(TAG, "Bus never became idle for timeouttime");
           return false;
       }
 
@@ -312,12 +312,12 @@ bool DLBus::capture(){
               }
               syncByte = (syncByte << 1) | newBit; // shift in valid newBit
           }
-          ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
+          //ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
       
           if ((sync == true) && (syncByte == 0x55)) {
               
               ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
-              //captureBit()
+              captureBit()
               // check for sync 16x true.....
               for (int i=0; i<16; i++) {
                 if (captureBit() != 1) {
