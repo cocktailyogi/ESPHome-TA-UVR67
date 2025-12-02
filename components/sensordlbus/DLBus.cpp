@@ -134,6 +134,8 @@ bool DLBus::testChecksumSensorSlave() {
   for (int i = 0; i < 4; i++) {
     checksum = checksum + DL_Bus_Buffer[i];
   }
+  ESP_LOGI(TAG, "checksum=0x%02X", checksum);
+  ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
   return (checksum == DL_Bus_Buffer[3]);
 }
 
@@ -169,52 +171,38 @@ void DLBus::processData() {
 
 bool DLBus::captureSinglePacket() {
   //ESP_LOGI(TAG, "captureSinglePacket started");
-  DL_Bus_Buffer[0] = recieveByte();
-  DL_Bus_Buffer[1] = recieveByte();
-  //DL_Bus_Buffer[2] = recieveByte();
-  //check DeviceType
-  if (DL_Bus_Buffer[1] != 0x80){
-    // error exit
-    ESP_LOGI(TAG, "captureSinglePacket Type error");
-    ESP_LOGI(TAG, "Buffer[1]=0x%02X", DL_Bus_Buffer[1]);
-    detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-    return false;
-  }
   for (int i = 2; i < DL_Bus_PacketLength; i++) {
     DL_Bus_Buffer[i] = recieveByte();
   }
+  detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
   if (testChecksum() == true) {
     // clean exit
     processData();
     ESP_LOGI(TAG, "Dataframe recieved and processed");
-    detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return true;
   }
   else {
     // error exit
     ESP_LOGI(TAG, "Dataframe Checksum Error");
     //ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
-    detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
 }
 
 bool DLBus::sensorSlave(){
     
-    DL_Bus_Buffer[0] = recieveByte();
-    DL_Bus_Buffer[1] = recieveByte();
     DL_Bus_Buffer[2] = recieveByte();
     DL_Bus_Buffer[3] = recieveByte();
-
+    detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     if (testChecksumSensorSlave() == true) {
         // clean exit
         //processData();
-        detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+        
         return true;
     }
     else {
         // error exit
-        detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+        
         return false;
     }
 }
@@ -283,7 +271,7 @@ bool DLBus::capture(){
             return false;
           }
       }
-      captureBit();
+      captureBit(); // dummy to get into the rythm
       if (captureBit() == 0) {
           //check for SYNC-Sequence from Master ... 0x55FFFF 
           // detect 0x55
@@ -298,7 +286,7 @@ bool DLBus::capture(){
               }
               syncByte = (syncByte << 1) | newBit; // shift in valid newBit
           }
-          ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
+          //ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
       
           if ((sync == true) && (syncByte == 0x55)) {
               
@@ -314,10 +302,24 @@ bool DLBus::capture(){
                 }
               }
               if (sync == true) {
-                  //Sync complete
                   //ESP_LOGI(TAG, "Sync 0x55FFFF detected");
-                  return DLBus::captureSinglePacket();
-                  //return DLBus::sensorSlave();
+                  DL_Bus_Buffer[0] = recieveByte();
+                  DL_Bus_Buffer[1] = recieveByte(); 
+                  byte deviceType = DL_Bus_Buffer[1];
+                  //check DeviceType
+                  if (deviceType == 0x00){
+                    return DLBus::sensorSlave();
+                  }
+                  if (deviceType == 0x80){
+                    return DLBus::captureSinglePacket();
+                  }
+                  else {
+                    // error exit
+                    ESP_LOGI(TAG, "captureSinglePacket Type error");
+                    ESP_LOGI(TAG, "Buffer[1]=0x%02X", DL_Bus_Buffer[1]);
+                    detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+                    return false;
+                  }
               }
           }
       }
