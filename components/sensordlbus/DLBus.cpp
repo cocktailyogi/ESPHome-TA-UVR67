@@ -266,13 +266,15 @@ bool DLBus::capture(){
 
   //Sync
   while (true) {
+
+      //wait for BusIdle
       if (!waitForBusIdle(3)) {
           ESP_LOGE(TAG, "Bus never became idle for timeouttime");
           return false;
       }
-
       attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
-
+      
+      //preload Buffer
       while(edgeBufferCount < 3) {
           yield();
           delay(1);
@@ -281,28 +283,12 @@ bool DLBus::capture(){
             return false;
           }
       }
-      // detect if 0x55FFFF or 0xFFFF
-      if (captureBit() == 1) {
-          
-          // check for dataframe from UVR..... 0xFFFF
+      
+      if (captureBit() == 0) {
+          //check for SYNC-Sequence from Master ... 0x55FFFF 
+          // detect 0x55
           sync = true;
-          for (int i=0; i<15; i++){
-            if (captureBit() != 1) {
-              sync = false;
-              break;
-            }
-          }
-          if (sync == true) {
-              //run captureFrame
-              ESP_LOGI(TAG, "Sync for Dataframe detected");
-              return DLBus::captureSinglePacket();
-          }
-          
-      }
-      else if (captureBit() == 0) {
-          //check for sensor-Read-frame from Master ... 0x55FFFF 
-          sync = true;
-          byte syncByte = 0b00000000; 
+          byte syncByte = 0; 
           byte newBit = false;
           for (int i=0; i<7; i++){
               newBit = captureBit();
@@ -316,8 +302,7 @@ bool DLBus::capture(){
       
           if ((sync == true) && (syncByte == 0x55)) {
               
-              //ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
-              // check for sync 16x true.....
+              // check for sync 0xFFFF
               curBit = false; // correction needed
               byte bit = false;
               for (int i=0; i < 16; i++) {
@@ -327,24 +312,20 @@ bool DLBus::capture(){
                   sync = false;
                   break;
                 }
-              
               }
-
               if (sync == true) {
-                  //run sensorSlaveFrame
-                  ESP_LOGI(TAG, "Sync 0x55FFFF detected");
+                  //Sync complete
+                  //ESP_LOGI(TAG, "Sync 0x55FFFF detected");
                   return DLBus::captureSinglePacket();
                   //return DLBus::sensorSlave();
               }
-              
           }
       }
-      
       edgeBufferWritePos = 0;
       edgeBufferReadPos = 0;
       edgeBufferCount = 0;
       yield();
-      
+      //timeoutcheck
       if ((millis() - T_Start) > timeout) {
         detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
         return false;
