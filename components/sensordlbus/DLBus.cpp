@@ -118,6 +118,7 @@ unsigned char DLBus::recieveByte() {
 
 bool DLBus::testChecksum() {
   unsigned char checksum = 1;
+  DL_Bus_Buffer[0] = 0xFF; //bugfix, device sends 0x00
   for (int i = 0; i < (DL_Bus_PacketLength - 1); i++) {
     checksum = checksum + DL_Bus_Buffer[i];
   }
