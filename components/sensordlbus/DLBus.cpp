@@ -318,6 +318,7 @@ bool DLBus::capture(){
               
               ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
               // check for sync 16x true.....
+              curBit = false;
               byte bit = false;
               for (int i=0; i < 16; i++) {
                 bit = (byte)captureBit(); 
