@@ -243,64 +243,63 @@ bool DLBus::capture(){
       }
       // detect if 0x55FFFF or 0xFFFF
       if (captureBit() == 1) {
-          if (captureBit() == 1) {
-              // check for dataframe from UVR..... 0xFFFF
-              sync = true;
-              for (int i=0; i<14; i++){
+          
+          // check for dataframe from UVR..... 0xFFFF
+          sync = true;
+          for (int i=0; i<15; i++){
+            if (captureBit() != 1) {
+              sync = false;
+              break;
+            }
+          }
+          if (sync == true) {
+              //run captureFrame
+              //ESP_LOGI(TAG, "Sync for Dataframe detected");
+              return DLBus::captureSinglePacket();
+          }
+          
+      }
+      else if (captureBit() == 0) {
+          //check for sensor-Read-frame from Master ... 0x55FFFF 
+          sync = true;
+          byte syncByte = 0b00000000; 
+          byte newBit = false;
+          for (int i=0; i<7; i++){
+              newBit = captureBit();
+              if (newBit == 2) {
+                sync = false;
+                break;
+              }
+              syncByte = (syncByte << 1) | newBit; // shift in valid newBit
+          }
+          ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
+          ESP_LOGI(TAG, "Syncbyte=0b%d%d%d%d%d%d%d%d", 
+                (syncByte >> 7) & 1,
+                (syncByte >> 6) & 1,
+                (syncByte >> 5) & 1,
+                (syncByte >> 4) & 1,
+                (syncByte >> 3) & 1,
+                (syncByte >> 2) & 1,
+                (syncByte >> 1) & 1,
+                (syncByte >> 0) & 1);
+
+          if ((sync == true) && (syncByte == 0x55)) {
+              
+              ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
+
+              // check for sync 16x true.....
+              for (int i=0; i<16; i++) {
                 if (captureBit() != 1) {
                   sync = false;
                   break;
                 }
               }
               if (sync == true) {
-                  //run captureFrame
-                  //ESP_LOGI(TAG, "Sync for Dataframe detected");
-                  return DLBus::captureSinglePacket();
+                  //run sensorSlaveFrame
+                  ESP_LOGI(TAG, "Sync 0x55FFFF for SensorSlaveFrame detected");
+                  return DLBus::sensorSlave();
               }
-          }
-          else if (captureBit() == 0) {
-              //check for sensor-Read-frame from Master ... 0x55FFFF 
-              sync = true;
-              byte syncByte = 0b00000010; // init 1st 2 Bits
-              byte newBit = false;
-              for (int i=0; i<6; i++){
-                  newBit = captureBit();
-                  if (newBit == 2) {
-                    sync = false;
-                    break;
-                  }
-                  syncByte = (syncByte << 1) | newBit; // shift in valid newBit
-              }
-              ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
-              ESP_LOGI(TAG, "Syncbyte=0b%d%d%d%d%d%d%d%d", 
-                    (syncByte >> 7) & 1,
-                    (syncByte >> 6) & 1,
-                    (syncByte >> 5) & 1,
-                    (syncByte >> 4) & 1,
-                    (syncByte >> 3) & 1,
-                    (syncByte >> 2) & 1,
-                    (syncByte >> 1) & 1,
-                    (syncByte >> 0) & 1);
-                    
-              if ((sync == true) && (syncByte == 0x55)) {
-                  
-                  ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
-
-                  // check for sync 16x true.....
-                  for (int i=0; i<16; i++) {
-                    if (captureBit() != 1) {
-                      sync = false;
-                      break;
-                    }
-                  }
-                  if (sync == true) {
-                      //run sensorSlaveFrame
-                      ESP_LOGI(TAG, "Sync 0x55FFFF for SensorSlaveFrame detected");
-                      return DLBus::sensorSlave();
-                  }
-                  
-              }
-		
+              
           }
       }
       
