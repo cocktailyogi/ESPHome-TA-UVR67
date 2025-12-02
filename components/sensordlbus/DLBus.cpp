@@ -122,10 +122,10 @@ bool DLBus::testChecksum() {
   for (int i = 0; i < (DL_Bus_PacketLength - 1); i++) {
     checksum = checksum + DL_Bus_Buffer[i];
   }
-  ESP_LOGI(TAG, "checksum=0x%02X", checksum);
-  ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
-  ESP_LOGI(TAG, "Buffer[61]=0x%02X, Buffer[62]=0x%02X", DL_Bus_Buffer[61], DL_Bus_Buffer[62]);
-  ESP_LOGI(TAG, "Buffer[63]=0x%02X, Buffer[64]=0x%02X", DL_Bus_Buffer[63], DL_Bus_Buffer[64]);
+  //ESP_LOGI(TAG, "checksum=0x%02X", checksum);
+  //ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
+  //ESP_LOGI(TAG, "Buffer[61]=0x%02X, Buffer[62]=0x%02X", DL_Bus_Buffer[61], DL_Bus_Buffer[62]);
+  //ESP_LOGI(TAG, "Buffer[63]=0x%02X, Buffer[64]=0x%02X", DL_Bus_Buffer[63], DL_Bus_Buffer[64]);
   return (checksum == DL_Bus_Buffer[DL_Bus_PacketLength - 1]);
 }
 
@@ -168,7 +168,7 @@ void DLBus::processData() {
 }
 
 bool DLBus::captureSinglePacket() {
-  ESP_LOGI(TAG, "captureSinglePacket started");
+  //ESP_LOGI(TAG, "captureSinglePacket started");
   DL_Bus_Buffer[0] = recieveByte();
   DL_Bus_Buffer[1] = recieveByte();
   //DL_Bus_Buffer[2] = recieveByte();
@@ -186,14 +186,14 @@ bool DLBus::captureSinglePacket() {
   if (testChecksum() == true) {
     // clean exit
     processData();
-    ESP_LOGI(TAG, "Dataframe processed");
+    ESP_LOGI(TAG, "Dataframe recieved and processed");
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return true;
   }
   else {
     // error exit
     ESP_LOGI(TAG, "Dataframe Checksum Error");
-    ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
+    //ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
     detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
     return false;
   }
@@ -261,7 +261,7 @@ bool DLBus::capture(){
           else if (captureBit() == 0) {
               //check for sensor-Read-frame from Master ... 0x55FFFF 
               sync = true;
-              byte syncByte = 0b00000010;
+              byte syncByte = 0b00000010; // init 1st 2 Bits
               byte newBit = false;
               for (int i=0; i<6; i++){
                   newBit = captureBit();
@@ -271,10 +271,10 @@ bool DLBus::capture(){
                   }
                   syncByte = (syncByte << 1) | newBit; // shift in valid newBit
               }
-            
-              if (sync == true) {
+              ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
+              if ((sync == true) && syncByte = 0x55) {
                   
-                  //ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
+                  ESP_LOGI(TAG, "Sync 0x55 for SensorSlaveFrame detected");
 
                   // check for sync 16x true.....
                   for (int i=0; i<16; i++) {
