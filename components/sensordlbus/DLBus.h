@@ -25,6 +25,16 @@ public:
     uint16_t Outputs;
   };
 
+  enum HeatingMode {
+    AUTOMATIC = 0xb000,
+    NORMAL = 0xb010,
+    ENERGYSAVING = 0xb100,
+    STANDBY = 0xb110,
+  };
+
+  HeatingMode currentHeatingMode;
+  float roomTemperatureRASPT;
+
   // Das zuletzt empfangene Frame
   DL_Bus_Frame lastFrame;
 
@@ -79,6 +89,9 @@ private:
   bool captureSinglePacket();
   bool sensorSlave();
   bool waitForBusIdle(unsigned long idleTimeMs);
+  bool sensorSlaveRespond(byte sensorAddress);
+  void DLBus::sendManchesterByte(uint8_t byte);
+  void DLBus::sendManchesterBit(bool bit);
 
 };
 

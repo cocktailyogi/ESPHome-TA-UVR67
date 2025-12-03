@@ -5,10 +5,7 @@ static const char *TAG = "DLBus";
 DLBus *DLBus::instance = nullptr;
 
 DLBus::DLBus() {
-  // set TX-Pin to inactive state
-  pinMode(DL_Output_Pin, OUTPUT);
-  digitalWrite(DL_Output_Pin, LOW);
-
+  
   instance = this;
   // Initialisiere den Buffer
   for (int i = 0; i < DL_Bus_PacketLength; i++) {
@@ -18,6 +15,11 @@ DLBus::DLBus() {
   edgeBufferReadPos = 0;
   edgeBufferCount = 0;
   timeSincelastEdge = 0;
+  currentHeatingMode = HeatingMode::NORMAL;
+  roomTemperatureRASPT = 19.8
+  // set TX-Pin to inactive state
+  pinMode(DL_Output_Pin, OUTPUT);
+  digitalWrite(DL_Output_Pin, LOW);
 }
 
 // Statische ISR-Funktion, die vom Interrupt-Controller aufgerufen wird.
@@ -175,6 +177,80 @@ bool DLBus::captureSinglePacket() {
   }
 }
 
+void DLBus::sendManchesterBit(bool bit) {
+    //DL_Output_Pin is inverted!
+    if (bit) {
+        // Bit 1: Low → High (steigende Flanke)
+        digitalWrite(DL_Output_Pin, HIGH);
+        delayMicroseconds(T);
+        digitalWrite(DL_Output_Pin, LOW);
+        delayMicroseconds(T);
+    } else {
+        // Bit 0: High → Low (fallende Flanke)
+        digitalWrite(DL_Output_Pin, LOW);
+        delayMicroseconds(T);
+        digitalWrite(DL_Output_Pin, HIGH);
+        delayMicroseconds(T);
+    }
+}
+
+void DLBus::sendManchesterByte(uint8_t byte) {
+    // Start Bit
+    sendManchesterBit(1);
+    // 8 Databits
+    for (int i = 0; i < 8; i++) {
+        bool bit = (byte >> i) & 1;
+        sendManchesterBit(bit);
+    }
+    // Stop Bit
+    sendManchesterBit(0);
+}
+
+bool sensorSlaveRespond(byte sensorAddress){
+    /*
+    2 ms Pause nach Empfang einer Anfrage
+    Slaveadresse (0xVU, V = 4 Bit Slaveadresse, U = 4 Bit Subadresse)
+    Datenkennzeichnung (1Byte)
+    Daten (normalerweise 2 Byte kann aber durch die Datenkennzeichnung anders
+    spezifiziert werden)
+    Prüfsumme (8 Bit)
+    
+    Der Temperaturwert eines Raumsensors enthält auch dessen Betriebsmodus. In den Datenbytes eines 
+    Temperaturwertes ist ein Raumsensor gekennzeichnet, dass Bit 6 des High-Bytes
+    das Vorzeichenbit invertiert darstellt. 
+    */
+    if (sensorAddress == 0x1B) {
+        // RAS-PT
+        delay(2ms); //specified in datasheet
+        byte Datenkennzeichnung = 0x01; // TempSensor
+        //encode room temperature
+        int_16 dataWord = (int16_t)(roomTemperatureRASPT * 10.0f);
+        // in RAS-PT Bit 14 needs to be inverted of Bit15
+        dataWord ^= ((dataWord >> 1) & 0x4000); // XOR Bit 14 with Bit 15
+        
+        byte DatenbyteLow = dataWord & 0xFF;
+        byte DatenbyteHigh = (dataWord >> 8) & 0xFF;
+        //encode currentHeatingMode
+        DatenbyteHigh = DatenbyteHigh | (byte)currentHeatingMode;
+        //make checksum
+        byte checksum = 0;
+        checksum = sensorAddress + Datenkennzeichnung + DatenbyteLow + DatenbyteHigh;
+        //send
+        DLBus::sendManchesterByte(sensorAddress);
+        DLBus::sendManchesterByte(Datenkennzeichnung);
+        DLBus::sendManchesterByte(DatenbyteLow);
+        DLBus::sendManchesterByte(DatenbyteHigh);
+        DLBus::sendManchesterByte(checksum);
+        //disable TX-Output
+        digitalWrite(DL_Output_Pin, LOW);
+        //send slave-Response
+        ESP_LOGI(TAG, "RAS-PT request processed");
+    }
+    else {
+        ESP_LOGI(TAG, "unknown Sensor-Address: 0x%02X", sensorAddress);
+    }
+}
+
 bool DLBus::sensorSlave(){
     
     DL_Bus_Buffer[2] = recieveByte();
@@ -183,7 +259,7 @@ bool DLBus::sensorSlave(){
     if (testChecksumSensorSlave() == true) {
         // clean exit
         byte sensorAddress = DL_Bus_Buffer[2];
-        
+        DLBus::sensorSlaveRespond(sensorAddress);
         // here needs SlaveResponse to be implemented
 
         ESP_LOGI(TAG, "MasterSlaveframe for sensorAddress=0x%02X processed", sensorAddress);
