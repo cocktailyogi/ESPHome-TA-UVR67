@@ -34,11 +34,9 @@ void DLBus::handleInterrupt() {
   // Berechne die Pulsdauer:
   actData.edgetime = (uint32_t)(timeOfActEdge - timeSincelastEdge);
   actData.pinState = !digitalRead(DL_Input_Pin);
-  if (edgeBufferCount < EdgeBufferSize) {
-    edgeTimeBuffer[edgeBufferWritePos] = actData;
-    edgeBufferWritePos = (edgeBufferWritePos + 1) % EdgeBufferSize;
-    edgeBufferCount++;
-  }
+  edgeTimeBuffer[edgeBufferWritePos] = actData;
+  edgeBufferWritePos = (edgeBufferWritePos + 1) % EdgeBufferSize;
+  edgeBufferCount++;
   timeSincelastEdge = timeOfActEdge;
 }
 
@@ -343,7 +341,7 @@ bool DLBus::capture(){
       //preload Buffer
       while(edgeBufferCount < 3) {
           yield();
-          delay(1);
+          //delay(1);
           if ((millis() - T_Start) > timeout) {
             detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
             return false;
