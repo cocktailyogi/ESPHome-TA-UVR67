@@ -335,7 +335,7 @@ bool DLBus::capture(){
 
       //wait for BusIdle
       if (!waitForBusIdle(3)) {
-          ESP_LOGE(TAG, "Bus never became idle for timeouttime");
+          //ESP_LOGE(TAG, "Bus never became idle for timeouttime");
           return false;
       }
       attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
@@ -399,6 +399,7 @@ bool DLBus::capture(){
                     return false;
                   }
               }
+              ESP_LOGE(TAG, "sync failed after recieved 0x55");
           }
       }
       edgeBufferWritePos = 0;
