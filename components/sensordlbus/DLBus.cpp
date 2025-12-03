@@ -303,11 +303,11 @@ bool DLBus::waitForBusIdle(unsigned long idleTimeMs) {
     
     while ((millis() - highStart) < idleTimeMs) {
       if (digitalRead(DL_Input_Pin) == LOW) {
-        //glitchCount++;
-        //if (glitchCount > 3) {  // ✅ Toleriere 2 Glitches
+        glitchCount++;
+        if (glitchCount > 1) {  // Tolerate 1 Glitch
           stable = false;
           break;
-        //}
+        }
       }
       yield();
     }
