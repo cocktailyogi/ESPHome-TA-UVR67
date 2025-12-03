@@ -11,28 +11,6 @@ public:
   // Konstanten (statt #define)
   static const int DL_Input_Pin = 27;           // Arduino-Pin
   static const int DL_Output_Pin = 12;
-  static const int EdgeBufferSize = 2000;
-  static const int DL_Bus_PacketLength = 65;      // for UVR67 and UVR1611
-  static constexpr int bittime = 2048; // Mikrosekunden
-  static constexpr int T = bittime / 2;
-  static constexpr int margin = T / 5;
-  static constexpr int Tmin = T - margin;                    // Mikrosekunden
-  static constexpr int Tmax = T + margin;                   // Mikrosekunden
-  static constexpr int timeout = 4000;                // ms
-
-  // Strukturen
-  struct InterruptData {
-    uint32_t edgetime;
-    bool pinState;
-  };
-
-  struct DL_Bus_Frame {
-    uint8_t DeviceID;
-    uint8_t Sec, Min, Hour, Day, Month;
-    uint16_t Year;
-    int16_t Sensor1, Sensor2, Sensor3, Sensor4, Sensor5, Sensor6;
-    uint16_t Outputs;
-  };
 
   // Konstruktor
   DLBus();
@@ -49,6 +27,20 @@ public:
   static DLBus *instance;
 
 private:
+
+  // Strukturen
+  struct InterruptData {
+    uint32_t edgetime;
+    bool pinState;
+  };
+
+  struct DL_Bus_Frame {
+  uint8_t DeviceID;
+  uint8_t Sec, Min, Hour, Day, Month;
+  uint16_t Year;
+  int16_t Sensor1, Sensor2, Sensor3, Sensor4, Sensor5, Sensor6;
+  uint16_t Outputs;
+};
   // Membervariablen, die vorher globale Variablen waren:
   InterruptData actData;
   unsigned long timeSincelastEdge;
@@ -56,13 +48,21 @@ private:
   bool nextBit;
   bool curBit;
   uint32_t edgetime;
-  InterruptData newData;
-  InterruptData edgeTimeBuffer[EdgeBufferSize];
   volatile uint16_t edgeBufferWritePos;  // Schreibposition (ISR)
   volatile uint16_t edgeBufferReadPos;   // Leseposition (Main)
   volatile uint16_t edgeBufferCount;     // Anzahl Elemente
+  static const int DL_Bus_PacketLength = 65;      // for UVR67 and UVR1611
   unsigned char DL_Bus_Buffer[DL_Bus_PacketLength];
   unsigned long T_Start;
+  static const int EdgeBufferSize = 2000;
+  static constexpr int bittime = 2048; // Mikrosekunden
+  static constexpr int T = bittime / 2;
+  static constexpr int margin = T / 5;
+  static constexpr int Tmin = T - margin;                    // Mikrosekunden
+  static constexpr int Tmax = T + margin;                   // Mikrosekunden
+  static constexpr int timeout = 4000;                // ms
+  InterruptData newData;
+  InterruptData edgeTimeBuffer[EdgeBufferSize];
 
   // Private Hilfsfunktionen
 
