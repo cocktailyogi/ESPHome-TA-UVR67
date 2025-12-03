@@ -13,7 +13,6 @@ void SensorDLBus::setup() {
   ESP_LOGD(TAG, "Setting up SensorDLBus");
   has_valid_data_ = false;
   last_valid_data_timestamp_ = 0;
-  ESP_LOGI(TAG, "DL-Bus receiver started in continuous mode");
   ESP_LOGI(TAG, "Timeout for stale data: %lu ms (%.1f minutes)", TIMEOUT_MS, TIMEOUT_MS / 60000.0);
 }
 
@@ -28,12 +27,10 @@ void SensorDLBus::loop() {
     // Wir merken uns nur den Zeitstempel
     last_valid_data_timestamp_ = millis();
     has_valid_data_ = true;
-    
   }
   
   // Kleine Pause, um anderen Tasks CPU-Zeit zu geben
   yield();
-
 }
 
 void SensorDLBus::update() {
@@ -127,12 +124,10 @@ void SensorDLBus::publish_sensors_() {
       this->outputA7Sensor_->publish_state((dlBus.lastFrame.Outputs >> 6) & 0b1);
 }
 
-
 bool SensorDLBus::is_data_stale_() {
   unsigned long age = millis() - last_valid_data_timestamp_;
   return age > TIMEOUT_MS;
 }
-
 
 }  // namespace sensordlbus
 }  // namespace esphome

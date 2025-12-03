@@ -61,7 +61,5 @@ class SensorDLBus : public PollingComponent {
   bool is_data_stale_();
 };
 
-
-
 }  // namespace sensordlbus
 }  // namespace esphome

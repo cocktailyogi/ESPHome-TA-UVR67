@@ -5,7 +5,10 @@ static const char *TAG = "DLBus";
 DLBus *DLBus::instance = nullptr;
 
 DLBus::DLBus() {
-  // Setze den statischen Zeiger auf diese Instanz
+  // set TX-Pin to inactive state
+  pinMode(DL_Output_Pin, OUTPUT);
+  digitalWrite(DL_Output_Pin, LOW);
+
   instance = this;
   // Initialisiere den Buffer
   for (int i = 0; i < DL_Bus_PacketLength; i++) {
