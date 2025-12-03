@@ -166,7 +166,7 @@ bool DLBus::captureSinglePacket() {
   if (testChecksum() == true) {
     // clean exit
     processData();
-    ESP_LOGI(TAG, "Dataframe recieved and processed");
+    //ESP_LOGI(TAG, "Dataframe recieved and processed");
     return true;
   }
   else {
@@ -257,7 +257,7 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
         //ESP_LOGI(TAG, "DatenbyteHigh=0x%02X", DatenbyteHigh);
         //ESP_LOGI(TAG, "checksum=0x%02X", checksum);
         //send slave-Response
-        ESP_LOGI(TAG, "RAS-PT request processed");
+        //ESP_LOGI(TAG, "RAS-PT request processed");
     }
     else {
         ESP_LOGI(TAG, "unknown Sensor-Address: 0x%02X", sensorAddress);
@@ -399,7 +399,7 @@ bool DLBus::capture(){
                     return false;
                   }
               }
-              ESP_LOGE(TAG, "sync failed after recieved 0x55");
+              //ESP_LOGE(TAG, "sync failed after recieved 0x55");
           }
       }
       edgeBufferWritePos = 0;
