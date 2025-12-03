@@ -197,14 +197,14 @@ void DLBus::sendManchesterBit(bool bit) {
 
 void DLBus::sendManchesterByte(uint8_t byte) {
     // Start Bit
-    sendManchesterBit(1);
+    sendManchesterBit(0);
     // 8 Databits
     for (int i = 0; i < 8; i++) {
         bool bit = (byte >> i) & 1;
         sendManchesterBit(bit);
     }
     // Stop Bit
-    sendManchesterBit(0);
+    sendManchesterBit(1);
     return;
 }
 
@@ -223,7 +223,7 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
     */
     if (sensorAddress == 0x1B) {
         // RAS-PT
-        delay(25); // 20ms specified in datasheet
+        delay(25); // min. 20ms specified in datasheet
         byte Datenkennzeichnung = 0x01; // TempSensor
         //encode room temperature
         int16_t dataWord = (int16_t)(roomTemperatureRASPT * 10.0f);
