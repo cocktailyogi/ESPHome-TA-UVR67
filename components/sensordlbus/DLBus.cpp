@@ -280,7 +280,7 @@ bool DLBus::sensorSlave(){
     }
     else {
         // error exit
-        
+        ESP_LOGI(TAG, "MasterSlaveframe Checksum Error");
         return false;
     }
 }
