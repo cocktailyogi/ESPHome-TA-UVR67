@@ -243,6 +243,11 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
         DLBus::sendManchesterByte(DatenbyteLow);
         DLBus::sendManchesterByte(DatenbyteHigh);
         DLBus::sendManchesterByte(checksum);
+        ESP_LOGI(TAG, "sensorAddress=0x%02X", sensorAddress);
+        ESP_LOGI(TAG, "Datenkennzeichnung=0x%02X", Datenkennzeichnung);
+        ESP_LOGI(TAG, "DatenbyteLow=0x%02X", DatenbyteLow);
+        ESP_LOGI(TAG, "DatenbyteHigh=0x%02X", DatenbyteHigh);
+        ESP_LOGI(TAG, "checksum=0x%02X", checksum);
         //disable TX-Output
         digitalWrite(DL_Output_Pin, LOW);
         //send slave-Response
