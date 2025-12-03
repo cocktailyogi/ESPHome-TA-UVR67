@@ -223,7 +223,7 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
     */
     if (sensorAddress == 0x1B) {
         // RAS-PT
-        delay(25); // min. 20ms specified in datasheet
+        delay(5); // min. 20ms specified in datasheet
         byte Datenkennzeichnung = 0x01; // TempSensor
         //encode room temperature
         int16_t dataWord = (int16_t)(roomTemperatureRASPT * 10.0f);
@@ -251,11 +251,11 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
         DLBus::sendManchesterByte(checksum);
         //disable TX-Output
         digitalWrite(DL_Output_Pin, LOW);
-        ESP_LOGI(TAG, "sensorAddress=0x%02X", sensorAddress);
-        ESP_LOGI(TAG, "Datenkennzeichnung=0x%02X", Datenkennzeichnung);
-        ESP_LOGI(TAG, "DatenbyteLow=0x%02X", DatenbyteLow);
-        ESP_LOGI(TAG, "DatenbyteHigh=0x%02X", DatenbyteHigh);
-        ESP_LOGI(TAG, "checksum=0x%02X", checksum);
+        //ESP_LOGI(TAG, "sensorAddress=0x%02X", sensorAddress);
+        //ESP_LOGI(TAG, "Datenkennzeichnung=0x%02X", Datenkennzeichnung);
+        //ESP_LOGI(TAG, "DatenbyteLow=0x%02X", DatenbyteLow);
+        //ESP_LOGI(TAG, "DatenbyteHigh=0x%02X", DatenbyteHigh);
+        //ESP_LOGI(TAG, "checksum=0x%02X", checksum);
         //send slave-Response
         ESP_LOGI(TAG, "RAS-PT request processed");
     }
