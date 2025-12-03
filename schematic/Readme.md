@@ -1,6 +1,6 @@
 
-## Credits
+## Credits for the Schematic symbol
 
-[text](libraries/wemos-d1-mini/Readme.md)
+https://github.com/besi/kicad-esp32-wemos-d1-mini
 
 
