@@ -14,23 +14,8 @@ DLBus::DLBus() {
   edgeBufferWritePos = 0;
   edgeBufferReadPos = 0;
   edgeBufferCount = 0;
-}
-
-void DLBus::init() {
-  #ifdef DEBUGPIN_ENABLE
-    pinMode(DEBUGPIN_NO, OUTPUT);
-    digitalWrite(DEBUGPIN_NO, LOW);
-  #endif
   timeSincelastEdge = 0;
 }
-
-#ifdef DEBUGPIN_ENABLE
-void DLBus::DebugPulse() {
-  digitalWrite(DEBUGPIN_NO, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(DEBUGPIN_NO, LOW);
-}
-#endif
 
 // Statische ISR-Funktion, die vom Interrupt-Controller aufgerufen wird.
 void IRAM_ATTR DLBus::isr() {

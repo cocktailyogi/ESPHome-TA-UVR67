@@ -11,7 +11,6 @@ DLBus dlBus;  // Erzeugt eine Instanz der Klasse DLBus
 
 void SensorDLBus::setup() {
   ESP_LOGD(TAG, "Setting up SensorDLBus");
-  dlBus.init(); // Initialisiert das Objekt, z. B. setzt interne Zustände
   has_valid_data_ = false;
   last_valid_data_timestamp_ = 0;
   ESP_LOGI(TAG, "DL-Bus receiver started in continuous mode");

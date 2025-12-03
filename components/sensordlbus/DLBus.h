@@ -37,7 +37,6 @@ public:
   // Konstruktor
   DLBus();
 
-  void init();
   bool capture();
    
   // Das zuletzt empfangene Frame
@@ -66,11 +65,7 @@ private:
   unsigned long T_Start;
 
   // Private Hilfsfunktionen
-  #ifdef DEBUGPIN_ENABLE
-  void DebugPulse();
-  #endif
 
-  // Nicht-statische Interruptbehandlung (wird von isr() aufgerufen)
   void handleInterrupt();
 
   bool loadBitFromEdgeTimeBuffer();
