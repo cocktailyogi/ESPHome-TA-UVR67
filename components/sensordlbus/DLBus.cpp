@@ -177,7 +177,7 @@ bool DLBus::captureSinglePacket() {
   }
 }
 
-void DLBus::sendManchesterBit(bool bit) {
+void sendManchesterBit(bool bit) {
     //DL_Output_Pin is inverted!
     if (bit) {
         // Bit 1: Low → High (steigende Flanke)
@@ -194,7 +194,7 @@ void DLBus::sendManchesterBit(bool bit) {
     }
 }
 
-void DLBus::sendManchesterByte(uint8_t byte) {
+void sendManchesterByte(uint8_t byte) {
     // Start Bit
     sendManchesterBit(1);
     // 8 Databits
