@@ -177,7 +177,7 @@ bool DLBus::captureSinglePacket() {
   }
 }
 
-void sendManchesterBit(bool bit) {
+void DLBus::sendManchesterBit(bool bit) {
     //DL_Output_Pin is inverted!
     if (bit) {
         // Bit 1: Low → High (steigende Flanke)
@@ -192,9 +192,10 @@ void sendManchesterBit(bool bit) {
         digitalWrite(DL_Output_Pin, HIGH);
         delayMicroseconds(T);
     }
+    return;
 }
 
-void sendManchesterByte(uint8_t byte) {
+void DLBus::sendManchesterByte(uint8_t byte) {
     // Start Bit
     sendManchesterBit(1);
     // 8 Databits
@@ -204,9 +205,10 @@ void sendManchesterByte(uint8_t byte) {
     }
     // Stop Bit
     sendManchesterBit(0);
+    return;
 }
 
-bool sensorSlaveRespond(byte sensorAddress){
+bool DLBus::sensorSlaveRespond(byte sensorAddress){
     /*
     2 ms Pause nach Empfang einer Anfrage
     Slaveadresse (0xVU, V = 4 Bit Slaveadresse, U = 4 Bit Subadresse)
@@ -221,10 +223,10 @@ bool sensorSlaveRespond(byte sensorAddress){
     */
     if (sensorAddress == 0x1B) {
         // RAS-PT
-        delay(2ms); //specified in datasheet
+        delay(2); // 2ms specified in datasheet
         byte Datenkennzeichnung = 0x01; // TempSensor
         //encode room temperature
-        int_16 dataWord = (int16_t)(roomTemperatureRASPT * 10.0f);
+        int16_t dataWord = (int16_t)(roomTemperatureRASPT * 10.0f);
         // in RAS-PT Bit 14 needs to be inverted of Bit15
         dataWord ^= ((dataWord >> 1) & 0x4000); // XOR Bit 14 with Bit 15
         
@@ -249,6 +251,7 @@ bool sensorSlaveRespond(byte sensorAddress){
     else {
         ESP_LOGI(TAG, "unknown Sensor-Address: 0x%02X", sensorAddress);
     }
+    return;
 }
 
 bool DLBus::sensorSlave(){
@@ -261,7 +264,6 @@ bool DLBus::sensorSlave(){
         byte sensorAddress = DL_Bus_Buffer[2];
         DLBus::sensorSlaveRespond(sensorAddress);
         // here needs SlaveResponse to be implemented
-
         ESP_LOGI(TAG, "MasterSlaveframe for sensorAddress=0x%02X processed", sensorAddress);
         return true;
     }

@@ -26,10 +26,10 @@ public:
   };
 
   enum HeatingMode {
-    AUTOMATIC = 0xb000,
-    NORMAL = 0xb010,
-    ENERGYSAVING = 0xb100,
-    STANDBY = 0xb110,
+    AUTOMATIC = 0b000,
+    NORMAL = 0b010,
+    ENERGYSAVING = 0b100,
+    STANDBY = 0b110,
   };
 
   HeatingMode currentHeatingMode;
