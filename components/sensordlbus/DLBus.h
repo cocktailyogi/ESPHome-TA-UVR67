@@ -6,11 +6,11 @@
 
 #include <Arduino.h>
 
-
 class DLBus {
 public:
   // Konstanten (statt #define)
   static const int DL_Input_Pin = 27;           // Arduino-Pin
+  static const int DL_Output_Pin = 12;
   static const int EdgeBufferSize = 2000;
   static const int DL_Bus_PacketLength = 65;      // for UVR67 and UVR1611
   static constexpr int bittime = 2048; // Mikrosekunden
@@ -19,7 +19,6 @@ public:
   static constexpr int Tmin = T - margin;                    // Mikrosekunden
   static constexpr int Tmax = T + margin;                   // Mikrosekunden
   static constexpr int timeout = 4000;                // ms
-
 
   // Strukturen
   struct InterruptData {
