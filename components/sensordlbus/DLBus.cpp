@@ -264,7 +264,7 @@ bool DLBus::sensorSlave(){
         byte sensorAddress = DL_Bus_Buffer[2];
         DLBus::sensorSlaveRespond(sensorAddress);
         // here needs SlaveResponse to be implemented
-        ESP_LOGI(TAG, "MasterSlaveframe for sensorAddress=0x%02X processed", sensorAddress);
+        //ESP_LOGI(TAG, "MasterSlaveframe for sensorAddress=0x%02X processed", sensorAddress);
         return true;
     }
     else {

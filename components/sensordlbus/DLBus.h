@@ -10,7 +10,7 @@ class DLBus {
 public:
   // Konstanten (statt #define)
   static const int DL_Input_Pin = 27;           // Arduino-Pin
-  static const int DL_Output_Pin = 12;
+  static const int DL_Output_Pin = 17;          // Arduino-Pin
 
   // Konstruktor
   DLBus();
