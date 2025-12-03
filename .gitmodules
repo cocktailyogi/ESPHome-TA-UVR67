@@ -1,0 +1,3 @@
+[submodule "libraries/wemos-d1-mini"]
+	path = libraries/wemos-d1-mini
+	url = https://github.com/besi/kicad-esp32-wemos-d1-mini.git
