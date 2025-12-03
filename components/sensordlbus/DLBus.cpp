@@ -16,7 +16,7 @@ DLBus::DLBus() {
   edgeBufferCount = 0;
   timeSincelastEdge = 0;
   currentHeatingMode = HeatingMode::NORMAL;
-  roomTemperatureRASPT = 19.8
+  roomTemperatureRASPT = 19.8;
   // set TX-Pin to inactive state
   pinMode(DL_Output_Pin, OUTPUT);
   digitalWrite(DL_Output_Pin, LOW);
