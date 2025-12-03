@@ -227,13 +227,19 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
         byte Datenkennzeichnung = 0x01; // TempSensor
         //encode room temperature
         int16_t dataWord = (int16_t)(roomTemperatureRASPT * 10.0f);
-        // in RAS-PT Bit 14 needs to be inverted of Bit15
-        dataWord ^= ((dataWord >> 1) & 0x4000); // XOR Bit 14 with Bit 15
         
         byte DatenbyteLow = dataWord & 0xFF;
         byte DatenbyteHigh = (dataWord >> 8) & 0xFF;
+        // in RAS-PT Bit 6 of DatenbyteHigh needs to be inverted of Bit7
+        if (DatenbyteHigh & 0x80) {
+            // clear Bit 6
+            DatenbyteHigh = DatenbyteHigh & 0b10111111;
+        } else {
+            // set Bit 6
+            DatenbyteHigh = DatenbyteHigh | 0b01000000;
+        }
         //encode currentHeatingMode
-        DatenbyteHigh = DatenbyteHigh | (byte)currentHeatingMode;
+        DatenbyteHigh = (DatenbyteHigh & 0b11111001) | (byte)currentHeatingMode;
         //make checksum
         byte checksum = 0;
         checksum = sensorAddress + Datenkennzeichnung + DatenbyteLow + DatenbyteHigh;
