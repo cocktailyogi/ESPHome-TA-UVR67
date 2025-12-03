@@ -89,7 +89,7 @@ private:
   bool captureSinglePacket();
   bool sensorSlave();
   bool waitForBusIdle(unsigned long idleTimeMs);
-  bool sensorSlaveRespond(byte sensorAddress);
+  void sensorSlaveRespond(byte sensorAddress);
   void sendManchesterByte(uint8_t byte);
   void sendManchesterBit(bool bit);
 

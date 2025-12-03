@@ -208,7 +208,7 @@ void DLBus::sendManchesterByte(uint8_t byte) {
     return;
 }
 
-bool DLBus::sensorSlaveRespond(byte sensorAddress){
+void DLBus::sensorSlaveRespond(byte sensorAddress){
     /*
     2 ms Pause nach Empfang einer Anfrage
     Slaveadresse (0xVU, V = 4 Bit Slaveadresse, U = 4 Bit Subadresse)
