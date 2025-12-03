@@ -16,7 +16,15 @@ public:
   DLBus();
 
   bool capture();
-   
+  
+  struct DL_Bus_Frame {
+    uint8_t DeviceID;
+    uint8_t Sec, Min, Hour, Day, Month;
+    uint16_t Year;
+    int16_t Sensor1, Sensor2, Sensor3, Sensor4, Sensor5, Sensor6;
+    uint16_t Outputs;
+  };
+
   // Das zuletzt empfangene Frame
   DL_Bus_Frame lastFrame;
 
@@ -34,13 +42,6 @@ private:
     bool pinState;
   };
 
-  struct DL_Bus_Frame {
-  uint8_t DeviceID;
-  uint8_t Sec, Min, Hour, Day, Month;
-  uint16_t Year;
-  int16_t Sensor1, Sensor2, Sensor3, Sensor4, Sensor5, Sensor6;
-  uint16_t Outputs;
-};
   // Membervariablen, die vorher globale Variablen waren:
   InterruptData actData;
   unsigned long timeSincelastEdge;
