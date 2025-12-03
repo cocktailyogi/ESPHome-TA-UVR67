@@ -297,12 +297,16 @@ bool DLBus::waitForBusIdle(unsigned long idleTimeMs) {
     
     // Pin ist HIGH - prüfe ob er stabil bleibt
     unsigned long highStart = millis();
+    int glitchCount = 0;
     bool stable = true;
     
     while ((millis() - highStart) < idleTimeMs) {
       if (digitalRead(DL_Input_Pin) == LOW) {
-        stable = false;
-        break;
+        glitchCount++;
+        if (glitchCount > 5) {  // ✅ Toleriere 2 Glitches
+          stable = false;
+          break;
+        }
       }
       yield();
     }
