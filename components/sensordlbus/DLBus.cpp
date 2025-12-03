@@ -331,16 +331,17 @@ bool DLBus::capture(){
   // Registriere den Interrupt mit der statischen ISR
   
   T_Start = millis();
-  curBit = false;
+  curBit = true;
 
   //Sync
   while (true) {
-
+      
       //wait for BusIdle
-      if (!waitForBusIdle(3)) {
+      if (!waitForBusIdle(2)) {
           //ESP_LOGE(TAG, "Bus never became idle for timeouttime");
           return false;
       }
+      
       attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
       
       //preload Buffer
@@ -406,13 +407,14 @@ bool DLBus::capture(){
               //ESP_LOGE(TAG, "sync failed after recieved 0x55");
           }
       }
+      detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
       edgeBufferWritePos = 0;
       edgeBufferReadPos = 0;
       edgeBufferCount = 0;
       yield();
       //timeoutcheck
       if ((millis() - T_Start) > timeout) {
-        detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+        //detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
         return false;
       }
     }
