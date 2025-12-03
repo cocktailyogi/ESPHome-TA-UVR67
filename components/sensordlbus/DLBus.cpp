@@ -223,8 +223,8 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
     */
     if (sensorAddress == 0x1B) {
         // RAS-PT
-        delay(20); // 2ms specified in datasheet
-        byte Datenkennzeichnung = 0x01; // TempSensor
+        delay(20); // 20ms specified in datasheet
+        byte Datenkennzeichnung = 0x00; // TempSensor
         //encode room temperature
         int16_t dataWord = (int16_t)(roomTemperatureRASPT * 10.0f);
         // in RAS-PT Bit 14 needs to be inverted of Bit15
