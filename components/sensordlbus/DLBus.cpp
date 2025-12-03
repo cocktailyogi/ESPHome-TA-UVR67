@@ -20,6 +20,7 @@ DLBus::DLBus() {
   // set TX-Pin to inactive state
   pinMode(DL_Output_Pin, OUTPUT);
   digitalWrite(DL_Output_Pin, LOW);
+  curBit = true;
 }
 
 // Statische ISR-Funktion, die vom Interrupt-Controller aufgerufen wird.
@@ -303,11 +304,8 @@ bool DLBus::waitForBusIdle(unsigned long idleTimeMs) {
     
     while ((millis() - highStart) < idleTimeMs) {
       if (digitalRead(DL_Input_Pin) == LOW) {
-        glitchCount++;
-        if (glitchCount > 1) {  // Tolerate 1 Glitch
           stable = false;
           break;
-        }
       }
       yield();
     }
@@ -331,13 +329,12 @@ bool DLBus::capture(){
   // Registriere den Interrupt mit der statischen ISR
   
   T_Start = millis();
-  curBit = true;
-
+  
   //Sync
   while (true) {
       
-      //wait for BusIdle
-      if (!waitForBusIdle(2)) {
+      //wait for BusIdle or high sequence
+      if (!waitForBusIdle(1)) {
           //ESP_LOGE(TAG, "Bus never became idle for timeouttime");
           return false;
       }
@@ -373,6 +370,7 @@ bool DLBus::capture(){
           if ((sync == true) && (syncByte == 0x55)) {
               
               // check for sync 0xFFFF
+              
               curBit = false; // correction needed
               byte bit = false;
               for (int i=0; i < 16; i++) {
