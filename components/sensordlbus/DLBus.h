@@ -90,8 +90,8 @@ private:
   bool sensorSlave();
   bool waitForBusIdle(unsigned long idleTimeMs);
   bool sensorSlaveRespond(byte sensorAddress);
-  void DLBus::sendManchesterByte(uint8_t byte);
-  void DLBus::sendManchesterBit(bool bit);
+  void sendManchesterByte(uint8_t byte);
+  void sendManchesterBit(bool bit);
 
 };
 
