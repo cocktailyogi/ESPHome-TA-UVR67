@@ -153,6 +153,7 @@ void DLBus::processData() {
   lastFrame.Sensor5 = processTemperature(DL_Bus_Buffer[17], DL_Bus_Buffer[18]);
   lastFrame.Sensor6 = processTemperature(DL_Bus_Buffer[19], DL_Bus_Buffer[20]);
   lastFrame.Outputs = (uint16_t)DL_Bus_Buffer[41] + 256 * (uint16_t)(DL_Bus_Buffer[42]);
+  return;
 }
 
 bool DLBus::captureSinglePacket() {
@@ -302,11 +303,11 @@ bool DLBus::waitForBusIdle(unsigned long idleTimeMs) {
     
     while ((millis() - highStart) < idleTimeMs) {
       if (digitalRead(DL_Input_Pin) == LOW) {
-        glitchCount++;
-        if (glitchCount > 5) {  // ✅ Toleriere 2 Glitches
+        //glitchCount++;
+        //if (glitchCount > 3) {  // ✅ Toleriere 2 Glitches
           stable = false;
           break;
-        }
+        //}
       }
       yield();
     }
@@ -391,6 +392,7 @@ bool DLBus::capture(){
                     return DLBus::sensorSlave();
                   }
                   if (deviceType == 0x80){
+                    //ESP_LOGI(TAG, "captureSinglePacket");
                     return DLBus::captureSinglePacket();
                   }
                   else {
