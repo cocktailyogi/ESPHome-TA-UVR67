@@ -99,6 +99,7 @@ private:
   void sendManchesterBit(bool bit);
   void resetManchesterBuffers();
   byte getByteFromBuffer_WithoutStartStop();
+  byte getByteFromBuffer();
   
 
 };
