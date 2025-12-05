@@ -14,10 +14,15 @@ DLBus::DLBus() {
   currentHeatingMode = HeatingMode::NORMAL;
   roomTemperatureRASPT = 19.8;
   // set TX-Pin to inactive state
-  //pinMode(DL_Input_Pin, INPUT);
+  pinMode(DL_Input_Pin, INPUT);
   pinMode(DL_Output_Pin, OUTPUT);
   digitalWrite(DL_Output_Pin, LOW);
   attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
+  ESP_LOGI(TAG, "Interrupt attached, Pin: %d, Interrupt: %d", 
+         DL_Input_Pin, digitalPinToInterrupt(DL_Input_Pin));
+  if (digitalPinToInterrupt(DL_Input_Pin) == -1) {
+  ESP_LOGE(TAG, "Pin %d does NOT support interrupts!", DL_Input_Pin);
+}
   currentCaptureState = captureState::UNSYNC;
 }
 
