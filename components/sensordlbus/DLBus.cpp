@@ -23,6 +23,11 @@ DLBus::DLBus() {
 
 // Statische ISR-Funktion, die vom Interrupt-Controller aufgerufen wird.
 void IRAM_ATTR DLBus::isr() {
+  static unsigned long lastLog = 0;
+  if (millis() - lastLog > 1000) {  // Nur alle 1 Sekunde loggen
+    ESP_LOGI("DLBus_ISR", "Interrupt triggered!");
+    lastLog = millis();
+  }
   if (instance) {
     instance->handleInterrupt();
   }
