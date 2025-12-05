@@ -425,6 +425,7 @@ void DLBus::capture(){
     if ( (last_valid_data_timestamp + timeout) < millis() ) {
         //Timeout
         has_valid_data = false;
+        currentCaptureState = captureState::UNSYNC;
     }
 
     if(FLAG_NEW_SLAVEREQUEST_PENDING == true) {
