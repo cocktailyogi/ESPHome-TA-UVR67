@@ -29,8 +29,6 @@ void SensorDLBus::loop() {
     has_valid_data_ = true;
   }
   
-  // Kleine Pause, um anderen Tasks CPU-Zeit zu geben
-  yield();
 }
 
 void SensorDLBus::update() {
