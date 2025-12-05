@@ -90,7 +90,7 @@ void DLBus::handleInterrupt() {
         case captureState::UNSYNC: 
             level = digitalRead(DL_Input_Pin);
             if(level == HIGH) {
-                if (duration > 2 * Tmin && duration < 2 * Tmax) {
+                if ((duration > (2 * Tmin)) && (duration < (2 * Tmax))) {
                     lastBit = level;
                     currentCaptureState = captureState::PREAMBLE_0x55;
                     ESP_LOGI(TAG, "DLBus::handleInterrupt(): switched to captureState::PREAMBLE_0x55");
