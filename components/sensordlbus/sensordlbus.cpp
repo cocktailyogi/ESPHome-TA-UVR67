@@ -18,7 +18,7 @@ void SensorDLBus::setup() {
 void SensorDLBus::loop() {
   // Diese Methode wird kontinuierlich aufgerufen
   // und versucht, DL-Bus Pakete zu empfangen
-  if (this->dlBus_ != nullptr) {
+  if (this->dlBus_ == nullptr) {
     ESP_LOGE(TAG, "dlBus_ is NULL in loop()!");
     return;
   }
