@@ -88,7 +88,6 @@ void DLBus::handleInterrupt() {
 
     switch (currentCaptureState) {
         case captureState::UNSYNC: 
-            level = digitalRead(DL_Input_Pin);
             if(level == HIGH) {
                 if ((duration > (2 * Tmin)) && (duration < (2 * Tmax))) {
                     lastBit = level;
