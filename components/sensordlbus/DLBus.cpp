@@ -83,13 +83,13 @@ bool DLBus::aquireByte(unsigned long duration){
 void DLBus::handleInterrupt() {
     unsigned long now = micros();
     unsigned long duration = now - lastEdgeTime;
+    bool level = digitalRead(DL_Input_Pin);
     byte result = 0xFF;
-
     lastEdgeTime = now;
 
     switch (currentCaptureState) {
-        case captureState::UNSYNC: {
-            bool level = digitalRead(DL_Input_Pin);
+        case captureState::UNSYNC: 
+            level = digitalRead(DL_Input_Pin);
             if(level == HIGH) {
                 if (duration > 2 * Tmin && duration < 2 * Tmax) {
                     lastBit = level;
@@ -97,9 +97,8 @@ void DLBus::handleInterrupt() {
                     ESP_LOGI(TAG, "DLBus::handleInterrupt(): switched to captureState::PREAMBLE_0x55");
                 }
             }
-            
             break;
-        }
+        
 
         case captureState::PREAMBLE_0x55:
             // 0x55 without start/stop Bits
