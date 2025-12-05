@@ -62,6 +62,8 @@ private:
     RECIEVE_SLAVEREQUEST = 9,
   };
 
+  captureState currentCaptureState;
+
   static const int DL_Bus_PacketLength = 65;      // for UVR67 and UVR1611
   volatile unsigned char DL_Bus_Buffer[DL_Bus_PacketLength];
   volatile byte current_DL_Bus_Buffer_Index = 0;
