@@ -71,7 +71,7 @@ private:
   static constexpr int margin = T / 4;
   static constexpr int Tmin = T - margin;                    // Mikrosekunden
   static constexpr int Tmax = T + margin;                   // Mikrosekunden
-  static constexpr int timeout = 4000;                // ms
+  static constexpr int timeout = 2000;                // ms
   InterruptData newData;
   InterruptData edgeTimeBuffer[EdgeBufferSize];
 
