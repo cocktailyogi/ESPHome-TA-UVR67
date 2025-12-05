@@ -11,43 +11,22 @@ DLBus dlBus;  // Erzeugt eine Instanz der Klasse DLBus
 
 void SensorDLBus::setup() {
   ESP_LOGD(TAG, "Setting up SensorDLBus");
-  has_valid_data_ = false;
-  last_valid_data_timestamp_ = 0;
-  ESP_LOGI(TAG, "Timeout for stale data: %lu ms (%.1f minutes)", TIMEOUT_MS, TIMEOUT_MS / 60000.0);
+  return;
 }
 
 void SensorDLBus::loop() {
   // Diese Methode wird kontinuierlich aufgerufen
   // und versucht, DL-Bus Pakete zu empfangen
-  
-  // Versuche ein Paket zu empfangen (nicht-blockierend)
-  if (dlBus.capture()) {
-    // Paket erfolgreich empfangen!
-    // Daten bleiben in dlBus.lastFrame
-    // Wir merken uns nur den Zeitstempel
-    last_valid_data_timestamp_ = millis();
-    has_valid_data_ = true;
-  }
-  
+  dlBus.capture(); 
+  return;
 }
 
 void SensorDLBus::update() {
   // Diese Methode wird periodisch aufgerufen (alle 10 Sekunden)
   // und publiziert die Sensor-Werte direkt aus dlBus.lastFrame
   
-  if (!has_valid_data_) {
+  if (!dlBus.has_valid_data) {
     ESP_LOGW(TAG, "No valid data received yet");
-    return;
-  }
-  
-  // Prüfe, ob Daten zu alt sind 
-  if (is_data_stale_()) {
-    unsigned long age_seconds = (millis() - last_valid_data_timestamp_) / 1000;
-    ESP_LOGE(TAG, "Data is stale! Last update: %lu seconds ago (%.1f minutes)", 
-             age_seconds, age_seconds / 60.0);
-    
-    // Markiere Daten als ungültig
-    has_valid_data_ = false;
     
     // Publiziere NaN für alle Sensoren um Fehler zu signalisieren
     if (this->tempSensor1_ != nullptr) 
@@ -77,17 +56,17 @@ void SensorDLBus::update() {
         this->outputA6Sensor_->publish_state(NAN);
     if (this->outputA7Sensor_ != nullptr) 
         this->outputA7Sensor_->publish_state(NAN);
-    
-    return;
   }
+  else {
+        // Daten sind gültig und aktuell - publiziere sie direkt aus lastFrame
+        publish_sensors_();
+  }  
   
-  // Daten sind gültig und aktuell - publiziere sie direkt aus lastFrame
-  publish_sensors_();
+  return;
 }
 
 void SensorDLBus::publish_sensors_() {
-  unsigned long age_ms = millis() - last_valid_data_timestamp_;
-  ESP_LOGD(TAG, "Publishing sensor values (data age: %lu ms)", age_ms);
+  ESP_LOGD(TAG, "Publishing sensor values");
   
   // Lese direkt aus dlBus.lastFrame
   if (this->deviceTypeSensor_ != nullptr) 
@@ -122,10 +101,6 @@ void SensorDLBus::publish_sensors_() {
       this->outputA7Sensor_->publish_state((dlBus.lastFrame.Outputs >> 6) & 0b1);
 }
 
-bool SensorDLBus::is_data_stale_() {
-  unsigned long age = millis() - last_valid_data_timestamp_;
-  return age > TIMEOUT_MS;
-}
 
 }  // namespace sensordlbus
 }  // namespace esphome

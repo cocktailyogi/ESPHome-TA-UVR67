@@ -48,17 +48,12 @@ class SensorDLBus : public PollingComponent {
   sensor::Sensor *outputA5Sensor_{nullptr};
   sensor::Sensor *outputA6Sensor_{nullptr};
   sensor::Sensor *outputA7Sensor_{nullptr};
-  
-  // Nur Timestamp-Tracking, keine Daten-Kopie nötig!
-  unsigned long last_valid_data_timestamp_{0};
-  bool has_valid_data_{false};
-  
+   
   // Konstanten
-  static const unsigned long TIMEOUT_MS = 180000; // 3 Minuten
+  
 
   // Private Hilfsmethoden
   void publish_sensors_();
-  bool is_data_stale_();
 };
 
 }  // namespace sensordlbus

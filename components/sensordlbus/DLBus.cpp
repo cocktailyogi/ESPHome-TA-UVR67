@@ -11,16 +11,15 @@ DLBus::DLBus() {
   for (int i = 0; i < DL_Bus_PacketLength; i++) {
     DL_Bus_Buffer[i] = 0xFF;
   }
-  edgeBufferWritePos = 0;
-  edgeBufferReadPos = 0;
-  edgeBufferCount = 0;
-  timeSincelastEdge = 0;
   currentHeatingMode = HeatingMode::NORMAL;
+  currentCaptureState = captureState::UNSYNC;
   roomTemperatureRASPT = 19.8;
   // set TX-Pin to inactive state
+  pinMode(DL_Input_Pin, INPUT);
   pinMode(DL_Output_Pin, OUTPUT);
   digitalWrite(DL_Output_Pin, LOW);
-  curBit = true;
+  attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
+
 }
 
 // Statische ISR-Funktion, die vom Interrupt-Controller aufgerufen wird.
@@ -30,79 +29,248 @@ void IRAM_ATTR DLBus::isr() {
   }
 }
 
+void DLBus::resetManchesterBuffers() {
+    currentCaptureState = captureState::UNSYNC;
+    bitCount = 0;
+    bitBuffer = 0;
+    needSecondT = false;
+}
+
+byte DLBus::getByteFromBuffer() {
+    // check for start/stop bits
+    bool stopBit = bitBuffer & 0x0001;        // Bit 0
+    bool startBit = (bitBuffer >> 9) & 0x0001; // Bit 9
+    byte receivedByte = 0xFF;
+    if (startBit == 0 && stopBit == 1) {
+        receivedByte = (bitBuffer >> 1) & 0xFF; 
+    }
+    bitCount = 0;
+    bitBuffer = 0;
+    needSecondT = false;
+    return receivedByte;
+}
+
+byte DLBus::getByteFromBuffer_WithoutStartStop() {
+    byte receivedByte = bitBuffer & 0xFF;
+    bitCount = 0;
+    bitBuffer = 0;
+    needSecondT = false;
+    return receivedByte;
+}
+
+bool DLBus::aquireByte(unsigned long duration){
+    // returns true, when byte is ready
+    byte result = captureBit(duration);
+    if (result == 2){
+        //error -> reset
+        resetManchesterBuffers();
+    }
+    if (result == 0){
+        bitBuffer = (bitBuffer << 1) | currentBit;
+        bitCount++;
+    }
+    if (bitCount == 10) {
+        return true;
+    }
+    if (bitCount > 10) {
+        //error -> reset
+        resetManchesterBuffers();
+        ESP_LOGI(TAG, "DLBus::aquireByte(): bitCount > 10");
+    }
+    return false;
+}
+
 void DLBus::handleInterrupt() {
-  timeOfActEdge = micros();
-  // Berechne die Pulsdauer:
-  actData.edgetime = (uint32_t)(timeOfActEdge - timeSincelastEdge);
-  actData.pinState = !digitalRead(DL_Input_Pin);
-  edgeTimeBuffer[edgeBufferWritePos] = actData;
-  edgeBufferWritePos = (edgeBufferWritePos + 1) % EdgeBufferSize;
-  edgeBufferCount++;
-  timeSincelastEdge = timeOfActEdge;
-}
+    unsigned long now = micros();
+    unsigned long duration = now - lastEdgeTime;
+    byte result = 0xFF;
 
-bool DLBus::loadBitFromEdgeTimeBuffer() {
-  int i = 0;
-  while (edgeBufferCount == 0) {
-    delay(2);
-    i++;
-    if (i == 3) {
-      return false;
-    }
-  }
-  newData = edgeTimeBuffer[edgeBufferReadPos];
-  edgeBufferReadPos = (edgeBufferReadPos + 1) % EdgeBufferSize;
-  edgeBufferCount--;
-  return true;
-}
+    lastEdgeTime = now;
 
-int DLBus::captureBit() {
-  if (loadBitFromEdgeTimeBuffer()) {
-    edgetime = newData.edgetime;
-    if (edgetime > Tmin && edgetime < Tmax) {
-      if (loadBitFromEdgeTimeBuffer()) {
-        edgetime = newData.edgetime;
-        if (edgetime > Tmin && edgetime < Tmax) {
-          nextBit = curBit;
-        } else {
-          return 2;
+    switch (currentCaptureState) {
+        case captureState::UNSYNC: {
+            bool level = digitalRead(DL_Input_Pin);
+            if(level == HIGH) {
+                if (duration > 2 * Tmin && duration < 2 * Tmax) {
+                    lastBit = level;
+                    currentCaptureState = captureState::PREAMBLE_0x55;
+                }
+            }
+            resetManchesterBuffers();
+            break;
         }
-      } else {
+
+        case captureState::PREAMBLE_0x55:
+            // 0x55 without start/stop Bits
+            result = captureBit(duration);
+            if (result == 2){
+                //error -> reset
+                resetManchesterBuffers();
+            }
+            if (result == 0){
+                bitBuffer = (bitBuffer << 1) | currentBit;
+                bitCount++;
+            }
+            if (bitCount == 8) {
+                byte receivedByte = getByteFromBuffer_WithoutStartStop();
+                if (receivedByte == 0x55) {
+                    currentCaptureState = captureState::PREAMBLE_0xFFFF;
+                }
+                else {
+                    resetManchesterBuffers();
+                }
+            }
+            break;
+
+        case captureState::PREAMBLE_0xFFFF:
+            // 0xFFFF without start/stop Bits
+            result = captureBit(duration);
+            if (result == 2){
+                //error -> reset
+                resetManchesterBuffers();
+            }
+            if (result == 0){
+                bitBuffer = (bitBuffer << 1) | currentBit;
+                bitCount++;
+            }
+            if (bitCount == 8) {
+                byte receivedByte = bitBuffer & 0xFF; // leave Bitbuffer untouched!
+                if (receivedByte != 0xFF) {
+                    resetManchesterBuffers();
+                }
+            }
+            if (bitCount == 16) {
+                if (bitBuffer == 0xFFFF) {
+                    currentCaptureState = captureState::RECIEVE_BYTE0;
+                    bitCount = 0;
+                    bitBuffer = 0;
+                }
+                else {
+                    resetManchesterBuffers();
+                }
+            }
+            break;
+          
+        case captureState::RECIEVE_BYTE0:
+            // expecting 0xFF
+            if (aquireByte(duration)) {
+                DL_Bus_Buffer[0] = getByteFromBuffer();
+                currentCaptureState = captureState::RECIEVE_BYTE1_MSGTYPE;
+            }
+            break;
+        
+        case captureState::RECIEVE_BYTE1_MSGTYPE:
+            if (aquireByte(duration)) {
+                DL_Bus_Buffer[1] = getByteFromBuffer();
+                currentCaptureState = captureState::MSGFRAME_SWITCH;
+            }
+            break;
+        
+        case captureState::MSGFRAME_SWITCH:
+            if (DL_Bus_Buffer[1] == 0x00) {
+                currentCaptureState = captureState::PREPARE_RECIEVE_SLAVEREQUEST;
+            }
+            else if (DL_Bus_Buffer[1] == 0x80) {
+                currentCaptureState = captureState::PREPARE_RECIEVE_DATAFRAME;
+            }
+            else {
+                resetManchesterBuffers();
+                ESP_LOGI(TAG, "DLBus::handleInterrupt(): Unknown MSGFRAME_SWITCH=0x%02X", DL_Bus_Buffer[1]);
+            }
+            break;
+        
+        case captureState::PREPARE_RECIEVE_DATAFRAME:
+            current_DL_Bus_Buffer_Index = 1;
+            if(FLAG_NEW_DATAFRAME_PENDING == false) {
+                currentCaptureState = captureState::RECIEVE_DATAFRAME;
+            }
+            else {
+                ESP_LOGI(TAG, "DLBus::handleInterrupt(): FLAG_NEW_DATAFRAME_PENDING still set");
+            }
+            break;
+          
+        case captureState::RECIEVE_DATAFRAME:
+            if (aquireByte(duration)) {
+                current_DL_Bus_Buffer_Index++;
+                DL_Bus_Buffer[current_DL_Bus_Buffer_Index] = getByteFromBuffer();
+            }
+            if(current_DL_Bus_Buffer_Index == (DL_Bus_PacketLength - 1) ) {
+                detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+                if (testChecksum() == true) {
+                  // clean exit
+                  FLAG_NEW_DATAFRAME_PENDING = true;
+                }
+                else {
+                  // error exit
+                  ESP_LOGI(TAG, "Dataframe Checksum Error");
+                  resetManchesterBuffers();
+                  //ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
+                }
+                attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
+            }
+            break;
+        
+        case captureState::PREPARE_RECIEVE_SLAVEREQUEST:
+            current_DL_Bus_Buffer_Index = 1;
+            if(FLAG_NEW_SLAVEREQUEST_PENDING == false) {
+                currentCaptureState = captureState::RECIEVE_SLAVEREQUEST;
+            }
+            else {
+                ESP_LOGI(TAG, "DLBus::handleInterrupt(): FLAG_NEW_SLAVEREQUEST_PENDING still set");
+            }
+            break;
+
+        case captureState::RECIEVE_SLAVEREQUEST:
+            if (aquireByte(duration)) {
+                current_DL_Bus_Buffer_Index++;
+                DL_Bus_Buffer[current_DL_Bus_Buffer_Index] = DLBus::getByteFromBuffer();
+            }
+            if(current_DL_Bus_Buffer_Index == 3) {
+                detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
+                if (testChecksumSensorSlave() == true) {
+                    // clean exit
+                    FLAG_NEW_SLAVEREQUEST_PENDING = true;
+                }
+                else {
+                  // error exit
+                  ESP_LOGI(TAG, "MasterSlaveframe Checksum Error");
+                  resetManchesterBuffers();
+                  //ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
+                }
+                attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
+            }
+            break;
+          
+        default:
+            ESP_LOGI(TAG, "DLBus::handleInterrupt(): Unknown currentCaptureState=0x%02X", currentCaptureState);
+            break;
+
+    }
+    return;
+
+}
+
+byte DLBus::captureBit(unsigned long duration) {
+    if (duration > Tmin && duration < Tmax) {
+        if(needSecondT == false) {
+            needSecondT = true;
+            return 1;
+        }
+        else {
+            needSecondT = false;
+            currentBit = lastBit;
+            //lastBit = currentBit;
+            return 0;
+        }
+    }
+    else if (duration > 2 * Tmin && duration < 2 * Tmax) {
+        currentBit = !lastBit;
+        lastBit = currentBit;
+        return 0;
+    }
+    else {
         return 2;
-      }
-    } else if (edgetime > 2 * Tmin && edgetime < 2 * Tmax) {
-      nextBit = !curBit;
-    } else {
-      return 2;
     }
-    curBit = nextBit;
-    return nextBit;
-  } else {
-    return 2;
-  }
-}
-
-unsigned char DLBus::recieveByte() {
-  char rxByte = 0;
-  //StartBit detected?
-  if (captureBit() == 0) {
-    //read 8 Bits
-    for (int i = 0; i < 8; i++) {
-      int bit = captureBit();
-      if (bit == 2) {
-        return 0x00;
-      } else {
-        if (bit == 1) {
-          SET_BIT(rxByte, i);
-        }
-      }
-    }
-    //StopBit
-    if (captureBit() == 1) {
-      return rxByte;
-    }
-  }
-  return 0x00;
 }
 
 bool DLBus::testChecksum() {
@@ -155,26 +323,6 @@ void DLBus::processData() {
   lastFrame.Sensor6 = processTemperature(DL_Bus_Buffer[19], DL_Bus_Buffer[20]);
   lastFrame.Outputs = (uint16_t)DL_Bus_Buffer[41] + 256 * (uint16_t)(DL_Bus_Buffer[42]);
   return;
-}
-
-bool DLBus::captureSinglePacket() {
-  //ESP_LOGI(TAG, "captureSinglePacket started");
-  for (int i = 2; i < DL_Bus_PacketLength; i++) {
-    DL_Bus_Buffer[i] = recieveByte();
-  }
-  detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-  if (testChecksum() == true) {
-    // clean exit
-    processData();
-    ESP_LOGI(TAG, "Dataframe recieved and processed");
-    return true;
-  }
-  else {
-    // error exit
-    ESP_LOGI(TAG, "Dataframe Checksum Error");
-    //ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
-    return false;
-  }
 }
 
 void DLBus::sendManchesterBit(bool bit) {
@@ -265,157 +413,29 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
     return;
 }
 
-bool DLBus::sensorSlave(){
-    
-    DL_Bus_Buffer[2] = recieveByte();
-    DL_Bus_Buffer[3] = recieveByte();
-    detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-    if (testChecksumSensorSlave() == true) {
-        // clean exit
+
+void DLBus::capture(){
+
+    if(FLAG_NEW_DATAFRAME_PENDING == true) {
+        processData();
+        last_valid_data_timestamp = millis();
+        has_valid_data = true;
+        FLAG_NEW_DATAFRAME_PENDING = false;
+        ESP_LOGI(TAG, "Dataframe recieved and processed");
+    }
+
+    if ( (last_valid_data_timestamp + timeout) < millis() ) {
+        //Timeout
+        has_valid_data = false;
+    }
+
+    if(FLAG_NEW_SLAVEREQUEST_PENDING == true) {
+        detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
         byte sensorAddress = DL_Bus_Buffer[2];
         DLBus::sensorSlaveRespond(sensorAddress);
-        // here needs SlaveResponse to be implemented
-        //ESP_LOGI(TAG, "MasterSlaveframe for sensorAddress=0x%02X processed", sensorAddress);
-        return true;
+        FLAG_NEW_SLAVEREQUEST_PENDING = false;
+        attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
+        ESP_LOGI(TAG, "SLAVEREQUEST recieved and processed");
     }
-    else {
-        // error exit
-        ESP_LOGI(TAG, "MasterSlaveframe Checksum Error");
-        return false;
-    }
-}
-
-bool DLBus::waitForBusIdle(unsigned long idleTimeMs) {
-  unsigned long startWait = millis();
-  
-  while ((millis() - startWait) < timeout) {
-    // Warte bis Pin HIGH ist
-    while (digitalRead(DL_Input_Pin) == LOW) {
-      if ((millis() - startWait) > timeout) {
-        return false;  // Timeout
-      }
-      yield();
-    }
-    
-    // Pin ist HIGH - prüfe ob er stabil bleibt
-    unsigned long highStart = millis();
-    int glitchCount = 0;
-    bool stable = true;
-    
-    while ((millis() - highStart) < idleTimeMs) {
-      if (digitalRead(DL_Input_Pin) == LOW) {
-          stable = false;
-          break;
-      }
-      yield();
-    }
-    
-    if (stable) {
-      //ESP_LOGD(TAG, "Bus idle for %lu ms", idleTimeMs);
-      return true;  // Erfolg!
-    }
-  }
-  
-  //ESP_LOGW(TAG, "Timeout waiting for bus idle");
-  return false;  // Timeout
-}
-
-bool DLBus::capture(){
-  // Reset Buffer
-  bool sync = false;
-  edgeBufferWritePos = 0;
-  edgeBufferReadPos = 0;
-  edgeBufferCount = 0;
-  // Registriere den Interrupt mit der statischen ISR
-  
-  T_Start = millis();
-  
-  //Sync
-  while (true) {
-      
-      //wait for BusIdle or high sequence
-      if (!waitForBusIdle(1)) {
-          //ESP_LOGE(TAG, "Bus never became idle for timeouttime");
-          return false;
-      }
-      
-      attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
-      
-      //preload Buffer
-      while(edgeBufferCount < 3) {
-          yield();
-          //delay(1);
-          if ((millis() - T_Start) > timeout) {
-            detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-            return false;
-          }
-      }
-      captureBit(); // dummy to get into the rythm
-      if (captureBit() == 0) {
-          //check for SYNC-Sequence from Master ... 0x55FFFF 
-          // detect 0x55
-          sync = true;
-          byte syncByte = 0; 
-          byte newBit = false;
-          for (int i=0; i<7; i++){
-              newBit = captureBit();
-              if (newBit == 2) {
-                sync = false;
-                break;
-              }
-              syncByte = (syncByte << 1) | newBit; // shift in valid newBit
-          }
-          //ESP_LOGI(TAG, "Syncbyte=0x%02X", syncByte);
-      
-          if ((sync == true) && (syncByte == 0x55)) {
-              
-              // check for sync 0xFFFF
-              
-              curBit = false; // correction needed
-              byte bit = false;
-              for (int i=0; i < 16; i++) {
-                bit = (byte)captureBit(); 
-                //ESP_LOGI(TAG, "bit=0x%02X", bit);
-                if (bit != 1) {
-                  sync = false;
-                  break;
-                }
-              }
-              if (sync == true) {
-                  //ESP_LOGI(TAG, "Sync 0x55FFFF detected");
-                  DL_Bus_Buffer[0] = recieveByte();
-                  DL_Bus_Buffer[1] = recieveByte(); 
-                  byte deviceType = DL_Bus_Buffer[1];
-                  //check DeviceType
-                  if (deviceType == 0x00){
-                    return DLBus::sensorSlave();
-                    // Warning: after end of response, master does not wait 2ms as specified! It only waits 100µs!
-                    // This must be kept in mind when making Sync-Algo!
-                  }
-                  if (deviceType == 0x80){
-                    //ESP_LOGI(TAG, "captureSinglePacket");
-                    return DLBus::captureSinglePacket();
-                  }
-                  else {
-                    // error exit
-                    ESP_LOGI(TAG, "unknown deviceType");
-                    ESP_LOGI(TAG, "deviceType=0x%02X", DL_Bus_Buffer[1]);
-                    detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-                    return false;
-                  }
-              }
-              //ESP_LOGE(TAG, "sync failed after recieved 0x55");
-          }
-      }
-      detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-      edgeBufferWritePos = 0;
-      edgeBufferReadPos = 0;
-      edgeBufferCount = 0;
-      yield();
-      //timeoutcheck
-      if ((millis() - T_Start) > timeout) {
-        //detachInterrupt(digitalPinToInterrupt(DL_Input_Pin));
-        return false;
-      }
-    }
+    return;
 }
