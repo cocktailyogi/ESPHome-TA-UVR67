@@ -93,7 +93,7 @@ void DLBus::handleInterrupt() {
                 if ((duration > (2 * Tmin)) && (duration < (2 * Tmax))) {
                     lastBit = level;
                     currentCaptureState = captureState::PREAMBLE_0x55;
-                    ESP_LOGI(TAG, "DLBus::handleInterrupt(): switched to captureState::PREAMBLE_0x55");
+                    //ESP_LOGI(TAG, "DLBus::handleInterrupt(): switched to captureState::PREAMBLE_0x55");
                 }
             }
             break;
@@ -104,6 +104,7 @@ void DLBus::handleInterrupt() {
             if (result == 2){
                 //error -> reset
                 resetManchesterBuffers();
+                ESP_LOGI(TAG, "DLBus::handleInterrupt(): PREAMBLE_0x55 error");
             }
             if (result == 0){
                 bitBuffer = (bitBuffer << 1) | currentBit;
