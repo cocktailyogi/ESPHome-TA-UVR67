@@ -101,7 +101,6 @@ private:
   byte getByteFromBuffer_WithoutStartStop();
   byte getByteFromBuffer();
   
-
 };
 
 #endif  // DLBus_h
