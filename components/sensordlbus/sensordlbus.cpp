@@ -7,25 +7,35 @@ namespace esphome {
 namespace sensordlbus {
 
 static const char *TAG = "sensordlbus";
-DLBus dlBus;  // Erzeugt eine Instanz der Klasse DLBus
+//DLBus dlBus;  // Erzeugt eine Instanz der Klasse DLBus
 
 void SensorDLBus::setup() {
-  ESP_LOGD(TAG, "Setting up SensorDLBus");
-  return;
+    this->dlBus_ = new DLBus();
+    ESP_LOGD(TAG, "Setting up SensorDLBus");
+    return;
 }
 
 void SensorDLBus::loop() {
   // Diese Methode wird kontinuierlich aufgerufen
   // und versucht, DL-Bus Pakete zu empfangen
-  dlBus.capture(); 
+  if (this->dlBus_ != nullptr) {
+    ESP_LOGE(TAG, "dlBus_ is NULL in loop()!");
+    return;
+  }
+
+  this->dlBus_->capture(); 
   return;
 }
 
 void SensorDLBus::update() {
   // Diese Methode wird periodisch aufgerufen (alle 10 Sekunden)
   // und publiziert die Sensor-Werte direkt aus dlBus.lastFrame
-  
-  if (!dlBus.has_valid_data) {
+  if (this->dlBus_ == nullptr) {
+    ESP_LOGW(TAG, "DLBus not initialized!");
+    return;
+  }
+
+  if (!this->!dlBus_.has_valid_data) {
     ESP_LOGW(TAG, "No valid data received yet");
     
     // Publiziere NaN für alle Sensoren um Fehler zu signalisieren

@@ -2,6 +2,7 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
+#include "DLBus.h"
 
 namespace esphome {
 namespace sensordlbus {
@@ -49,7 +50,7 @@ class SensorDLBus : public PollingComponent {
   sensor::Sensor *outputA6Sensor_{nullptr};
   sensor::Sensor *outputA7Sensor_{nullptr};
    
-  // Konstanten
+  DLBus *dlBus_{nullptr};
   
 
   // Private Hilfsmethoden

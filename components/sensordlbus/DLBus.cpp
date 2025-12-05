@@ -21,8 +21,8 @@ DLBus::DLBus() {
   ESP_LOGI(TAG, "Interrupt attached, Pin: %d, Interrupt: %d", 
          DL_Input_Pin, digitalPinToInterrupt(DL_Input_Pin));
   if (digitalPinToInterrupt(DL_Input_Pin) == -1) {
-  ESP_LOGE(TAG, "Pin %d does NOT support interrupts!", DL_Input_Pin);
-}
+      ESP_LOGE(TAG, "Pin %d does NOT support interrupts!", DL_Input_Pin);
+  }
   currentCaptureState = captureState::UNSYNC;
 }
 
