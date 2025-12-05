@@ -389,6 +389,8 @@ bool DLBus::capture(){
                   //check DeviceType
                   if (deviceType == 0x00){
                     return DLBus::sensorSlave();
+                    // Warning: after end of response, master does not wait 2ms as specified! It only waits 100µs!
+                    // This must be kept in mind when making Sync-Algo!
                   }
                   if (deviceType == 0x80){
                     //ESP_LOGI(TAG, "captureSinglePacket");
