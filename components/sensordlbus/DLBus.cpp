@@ -97,7 +97,7 @@ void DLBus::handleInterrupt() {
                     ESP_LOGI(TAG, "DLBus::handleInterrupt(): switched to captureState::PREAMBLE_0x55");
                 }
             }
-            resetManchesterBuffers();
+            
             break;
         }
 
