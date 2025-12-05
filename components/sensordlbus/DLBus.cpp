@@ -12,14 +12,13 @@ DLBus::DLBus() {
     DL_Bus_Buffer[i] = 0xFF;
   }
   currentHeatingMode = HeatingMode::NORMAL;
-  currentCaptureState = captureState::UNSYNC;
   roomTemperatureRASPT = 19.8;
   // set TX-Pin to inactive state
   pinMode(DL_Input_Pin, INPUT);
   pinMode(DL_Output_Pin, OUTPUT);
   digitalWrite(DL_Output_Pin, LOW);
   attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
-
+  currentCaptureState = captureState::UNSYNC;
 }
 
 // Statische ISR-Funktion, die vom Interrupt-Controller aufgerufen wird.
@@ -99,7 +98,6 @@ void DLBus::handleInterrupt() {
             }
             break;
         
-
         case captureState::PREAMBLE_0x55:
             // 0x55 without start/stop Bits
             result = captureBit(duration);
@@ -416,7 +414,6 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
 
 
 void DLBus::capture(){
-
     if(FLAG_NEW_DATAFRAME_PENDING == true) {
         processData();
         last_valid_data_timestamp = millis();
