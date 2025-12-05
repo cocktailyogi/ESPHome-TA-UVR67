@@ -35,7 +35,7 @@ void SensorDLBus::update() {
     return;
   }
 
-  if (!this->!dlBus_.has_valid_data) {
+  if (!this->dlBus_.has_valid_data) {
     ESP_LOGW(TAG, "No valid data received yet");
     
     // Publiziere NaN für alle Sensoren um Fehler zu signalisieren
