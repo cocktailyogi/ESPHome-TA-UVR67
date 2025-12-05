@@ -52,6 +52,14 @@ private:
     bool pinState;
   };
 
+  enum captureState {
+    SYNC = 0,
+    PREAMBLE_0x55 = 1,
+    PREAMBLE_0xFFFF = 2,
+    RECIEVE_BYTE0 = 3,
+    RECIEVE_BYTE1_MSGTYPE = 4,
+  };
+
   // Membervariablen, die vorher globale Variablen waren:
   InterruptData actData;
   unsigned long timeSincelastEdge;
