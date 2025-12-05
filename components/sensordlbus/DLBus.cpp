@@ -14,7 +14,7 @@ DLBus::DLBus() {
   currentHeatingMode = HeatingMode::NORMAL;
   roomTemperatureRASPT = 19.8;
   // set TX-Pin to inactive state
-  pinMode(DL_Input_Pin, INPUT);
+  //pinMode(DL_Input_Pin, INPUT);
   pinMode(DL_Output_Pin, OUTPUT);
   digitalWrite(DL_Output_Pin, LOW);
   attachInterrupt(digitalPinToInterrupt(DL_Input_Pin), DLBus::isr, CHANGE);
