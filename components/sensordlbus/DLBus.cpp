@@ -177,7 +177,7 @@ void DLBus::handleInterrupt() {
             else {
                 resetManchesterBuffers();
                 ESP_LOGI(TAG, "DLBus::handleInterrupt(): Unknown MSGFRAME_SWITCH=0x%02X", DL_Bus_Buffer[1]);
-                ESP_LOGI(TAG, "DLBus::handleInterrupt(): DL_Bus_Buffer[1]=0x%02X", DL_Bus_Buffer[0]);
+                ESP_LOGI(TAG, "DLBus::handleInterrupt(): DL_Bus_Buffer[0]=0x%02X", DL_Bus_Buffer[0]);
             }
             break;
         
@@ -265,7 +265,7 @@ byte DLBus::captureBit(unsigned long duration) {
             return 0;
         }
     }
-    else if (duration > 2 * Tmin && duration < 2 * Tmax) {
+    else if ((duration > (2 * Tmin)) && (duration < (2 * Tmax))) {
         currentBit = !lastBit;
         lastBit = currentBit;
         return 0;
