@@ -80,35 +80,35 @@ void SensorDLBus::publish_sensors_() {
   
   // Lese direkt aus dlBus.lastFrame
   if (this->deviceTypeSensor_ != nullptr) 
-      this->deviceTypeSensor_->publish_state(dlBus.lastFrame.DeviceID);
+      this->deviceTypeSensor_->publish_state(this->dlBus_.lastFrame.DeviceID);
 
   if (this->tempSensor1_ != nullptr) 
-      this->tempSensor1_->publish_state(dlBus.lastFrame.Sensor1 / 10.0);
+      this->tempSensor1_->publish_state(this->dlBus_.lastFrame.Sensor1 / 10.0);
   if (this->tempSensor2_ != nullptr) 
-      this->tempSensor2_->publish_state(dlBus.lastFrame.Sensor2 / 10.0);
+      this->tempSensor2_->publish_state(this->dlBus_.lastFrame.Sensor2 / 10.0);
   if (this->tempSensor3_ != nullptr) 
-      this->tempSensor3_->publish_state(dlBus.lastFrame.Sensor3 / 10.0);
+      this->tempSensor3_->publish_state(this->dlBus_.lastFrame.Sensor3 / 10.0);
   if (this->tempSensor4_ != nullptr) 
-      this->tempSensor4_->publish_state(dlBus.lastFrame.Sensor4 / 10.0);
+      this->tempSensor4_->publish_state(this->dlBus_.lastFrame.Sensor4 / 10.0);
   if (this->tempSensor5_ != nullptr) 
-      this->tempSensor5_->publish_state(dlBus.lastFrame.Sensor5 / 10.0);
+      this->tempSensor5_->publish_state(this->dlBus_.lastFrame.Sensor5 / 10.0);
   if (this->tempSensor6_ != nullptr) 
-      this->tempSensor6_->publish_state(dlBus.lastFrame.Sensor6 / 10.0);
+      this->tempSensor6_->publish_state(this->dlBus_.lastFrame.Sensor6 / 10.0);
 
   if (this->outputA1Sensor_ != nullptr) 
-      this->outputA1Sensor_->publish_state((dlBus.lastFrame.Outputs >> 0) & 0b1);
+      this->outputA1Sensor_->publish_state((this->dlBus_.lastFrame.Outputs >> 0) & 0b1);
   if (this->outputA2Sensor_ != nullptr) 
-      this->outputA2Sensor_->publish_state((dlBus.lastFrame.Outputs >> 1) & 0b1);
+      this->outputA2Sensor_->publish_state((this->dlBus_.lastFrame.Outputs >> 1) & 0b1);
   if (this->outputA3Sensor_ != nullptr) 
-      this->outputA3Sensor_->publish_state((dlBus.lastFrame.Outputs >> 2) & 0b1);
+      this->outputA3Sensor_->publish_state((this->dlBus_.lastFrame.Outputs >> 2) & 0b1);
   if (this->outputA4Sensor_ != nullptr) 
-      this->outputA4Sensor_->publish_state((dlBus.lastFrame.Outputs >> 3) & 0b1);
+      this->outputA4Sensor_->publish_state((this->dlBus_.lastFrame.Outputs >> 3) & 0b1);
   if (this->outputA5Sensor_ != nullptr) 
-      this->outputA5Sensor_->publish_state((dlBus.lastFrame.Outputs >> 4) & 0b1);
+      this->outputA5Sensor_->publish_state((this->dlBus_.lastFrame.Outputs >> 4) & 0b1);
   if (this->outputA6Sensor_ != nullptr) 
-      this->outputA6Sensor_->publish_state((dlBus.lastFrame.Outputs >> 5) & 0b1);
+      this->outputA6Sensor_->publish_state((this->dlBus_.lastFrame.Outputs >> 5) & 0b1);
   if (this->outputA7Sensor_ != nullptr) 
-      this->outputA7Sensor_->publish_state((dlBus.lastFrame.Outputs >> 6) & 0b1);
+      this->outputA7Sensor_->publish_state((this->dlBus_.lastFrame.Outputs >> 6) & 0b1);
 }
 
 
