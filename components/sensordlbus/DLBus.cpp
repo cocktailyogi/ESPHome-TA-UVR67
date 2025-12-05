@@ -104,7 +104,7 @@ void DLBus::handleInterrupt() {
             if (result == 2){
                 //error -> reset
                 resetManchesterBuffers();
-                ESP_LOGI(TAG, "DLBus::handleInterrupt(): PREAMBLE_0x55 error");
+                //ESP_LOGI(TAG, "DLBus::handleInterrupt(): PREAMBLE_0x55 error");
             }
             if (result == 0){
                 bitBuffer = (bitBuffer << 1) | currentBit;
@@ -114,7 +114,7 @@ void DLBus::handleInterrupt() {
                 byte receivedByte = getByteFromBuffer_WithoutStartStop();
                 if (receivedByte == 0x55) {
                     currentCaptureState = captureState::PREAMBLE_0xFFFF;
-                    ESP_LOGI(TAG, "DLBus::handleInterrupt(): switched to captureState::PREAMBLE_0xFFFF");
+                    //ESP_LOGI(TAG, "DLBus::handleInterrupt(): switched to captureState::PREAMBLE_0xFFFF");
                 }
                 else {
                     resetManchesterBuffers();
@@ -142,6 +142,7 @@ void DLBus::handleInterrupt() {
             if (bitCount == 16) {
                 if (bitBuffer == 0xFFFF) {
                     currentCaptureState = captureState::RECIEVE_BYTE0;
+                    //ESP_LOGI(TAG, "DLBus::handleInterrupt(): switched to captureState::RECIEVE_BYTE0");
                     bitCount = 0;
                     bitBuffer = 0;
                 }
@@ -176,6 +177,7 @@ void DLBus::handleInterrupt() {
             else {
                 resetManchesterBuffers();
                 ESP_LOGI(TAG, "DLBus::handleInterrupt(): Unknown MSGFRAME_SWITCH=0x%02X", DL_Bus_Buffer[1]);
+                ESP_LOGI(TAG, "DLBus::handleInterrupt(): DL_Bus_Buffer[1]=0x%02X", DL_Bus_Buffer[0]);
             }
             break;
         
