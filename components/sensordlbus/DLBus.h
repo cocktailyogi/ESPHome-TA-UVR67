@@ -9,13 +9,14 @@
 class DLBus {
 public:
   // Konstanten (statt #define)
-  static const int DL_Input_Pin = 27;           // Arduino-Pin
-  static const int DL_Output_Pin = 17;          // Arduino-Pin
+  int DL_Input_Pin;
+  int DL_Output_Pin;
+  static const int debug_Pin = 33; 
 
   // Konstruktor
-  DLBus();
+  DLBus(uint8_t input_pin = 27, uint8_t output_pin = 17);
 
-  bool capture();
+  void capture();
   
   struct DL_Bus_Frame {
     uint8_t DeviceID;
@@ -44,55 +45,61 @@ public:
   // Zeiger auf die Instanz (wird im Konstruktor gesetzt)
   static DLBus *instance;
 
+  unsigned long last_valid_data_timestamp;
+  bool has_valid_data = false;
+
 private:
 
-  // Strukturen
-  struct InterruptData {
-    uint32_t edgetime;
-    bool pinState;
+  enum captureState {
+    UNSYNC = 0,
+    PREAMBLE_0x55 = 1,
+    PREAMBLE_0xFFFF = 2,
+    RECIEVE_BYTE0 = 3,
+    RECIEVE_DATAFRAME = 4,
+    RECIEVE_SLAVEREQUEST = 5,
   };
 
-  // Membervariablen, die vorher globale Variablen waren:
-  InterruptData actData;
-  unsigned long timeSincelastEdge;
-  unsigned long timeOfActEdge;
-  bool nextBit;
-  bool curBit;
-  uint32_t edgetime;
-  volatile uint16_t edgeBufferWritePos;  // Schreibposition (ISR)
-  volatile uint16_t edgeBufferReadPos;   // Leseposition (Main)
-  volatile uint16_t edgeBufferCount;     // Anzahl Elemente
-  static const int DL_Bus_PacketLength = 65;      // for UVR67 and UVR1611
-  unsigned char DL_Bus_Buffer[DL_Bus_PacketLength];
-  unsigned long T_Start;
-  static const int EdgeBufferSize = 2000;
+  captureState currentCaptureState;
+
+  static const int DL_Bus_PacketLength = 64;      // for UVR67 and UVR1611
+  volatile unsigned char DL_Bus_Buffer[DL_Bus_PacketLength];
+  volatile unsigned char current_DL_Bus_Buffer_Index = 0;
+
   static constexpr int bittime = 2048; // Mikrosekunden
   static constexpr int T = bittime / 2;
-  static constexpr int margin = T / 4;
+  static constexpr int margin = 200;
   static constexpr int Tmin = T - margin;                    // Mikrosekunden
   static constexpr int Tmax = T + margin;                   // Mikrosekunden
-  static constexpr int timeout = 4000;                // ms
-  InterruptData newData;
-  InterruptData edgeTimeBuffer[EdgeBufferSize];
+  static constexpr int timeout = 10000;                // ms
+
+  volatile unsigned long lastEdgeTime = 0;
+  volatile uint16_t bitBuffer = 0;
+  volatile int bitCount = 0;
+  volatile bool lastBit = HIGH;
+  volatile bool currentBit = HIGH;
+  volatile bool needSecondT = false;
+  volatile bool FLAG_NEW_DATAFRAME_PENDING = false;
+  volatile bool FLAG_NEW_SLAVEREQUEST_PENDING = false;
 
   // Private Hilfsfunktionen
 
   void handleInterrupt();
 
-  bool loadBitFromEdgeTimeBuffer();
-  int captureBit();
-  unsigned char recieveByte();
+  byte captureBit(unsigned long duration);
+  bool aquireByte(unsigned long duration);
   bool testChecksum();
   bool testChecksumSensorSlave();
   int16_t processTemperature(char lowByte, char highbyte);
   void processData();
-  bool captureSinglePacket();
-  bool sensorSlave();
-  bool waitForBusIdle(unsigned long idleTimeMs);
   void sensorSlaveRespond(byte sensorAddress);
   void sendManchesterByte(uint8_t byte);
   void sendManchesterBit(bool bit);
-
+  void resetManchesterBuffers();
+  void debugPulse();
+  byte getByteFromBuffer_WithoutStartStop();
+  byte getByteFromBuffer();
+  uint8_t reverseByte(uint8_t byte);
+  
 };
 
 #endif  // DLBus_h

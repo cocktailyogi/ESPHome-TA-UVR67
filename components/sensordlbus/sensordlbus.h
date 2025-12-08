@@ -2,14 +2,38 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
+#include "esphome/components/number/number.h"
+#include "esphome/components/select/select.h"
+#include "DLBus.h"
 
 namespace esphome {
 namespace sensordlbus {
+
+class SensorDLBus;  // Forward declaration
+class RoomTemperatureNumber : public number::Number, public Component {
+ public:
+  void set_parent(SensorDLBus *parent) { parent_ = parent; }
+  void setup() override;
+  void control(float value) override;
+ protected:
+  SensorDLBus *parent_{nullptr};
+};
+
+class HeatingModeSelect : public select::Select, public Component {
+ public:
+  void set_parent(SensorDLBus *parent) { parent_ = parent; }
+  void setup() override;
+  void control(const std::string &value) override;
+ protected:
+  SensorDLBus *parent_{nullptr};
+};
 
 class SensorDLBus : public PollingComponent {
  public:
   
   // Setter-Methoden für die Sensoren
+  void set_input_pin(uint8_t pin) { input_pin_ = pin; }
+  void set_output_pin(uint8_t pin) { output_pin_ = pin; }
   void set_device_type_sensor(sensor::Sensor *deviceTypeSensor){deviceTypeSensor_ = deviceTypeSensor; }
   void set_temp_sensor1(sensor::Sensor *tempSensor1){tempSensor1_ = tempSensor1; }
   void set_temp_sensor2(sensor::Sensor *tempSensor2){tempSensor2_ = tempSensor2; }
@@ -24,8 +48,11 @@ class SensorDLBus : public PollingComponent {
   void set_output_a5_sensor(sensor::Sensor *outputA5Sensor){outputA5Sensor_ = outputA5Sensor; }
   void set_output_a6_sensor(sensor::Sensor *outputA6Sensor){outputA6Sensor_ = outputA6Sensor; }
   void set_output_a7_sensor(sensor::Sensor *outputA7Sensor){outputA7Sensor_ = outputA7Sensor; }
+  void set_room_temperature_number(RoomTemperatureNumber *num) {roomTemperatureNumber_ = num; num->set_parent(this);}
+  void set_heating_mode_select(HeatingModeSelect *sel) { heatingModeSelect_ = sel; sel->set_parent(this); }
+  DLBus* get_dlbus() { return dlBus_; }
   
-  SensorDLBus() : PollingComponent(15000) {} // 15 Seconds  
+  SensorDLBus() : PollingComponent(30000) {} // 30 Seconds  
   float get_setup_priority() const override { return esphome::setup_priority::DATA; }
   
 
@@ -34,6 +61,8 @@ class SensorDLBus : public PollingComponent {
   void update() override;
   
  protected:
+  uint8_t input_pin_{27};
+  uint8_t output_pin_{17};
   sensor::Sensor *deviceTypeSensor_{nullptr};
   sensor::Sensor *tempSensor1_{nullptr};
   sensor::Sensor *tempSensor2_{nullptr};
@@ -48,17 +77,15 @@ class SensorDLBus : public PollingComponent {
   sensor::Sensor *outputA5Sensor_{nullptr};
   sensor::Sensor *outputA6Sensor_{nullptr};
   sensor::Sensor *outputA7Sensor_{nullptr};
+
+  RoomTemperatureNumber *roomTemperatureNumber_{nullptr};
+  HeatingModeSelect *heatingModeSelect_{nullptr};
+   
+  DLBus *dlBus_{nullptr};
   
-  // Nur Timestamp-Tracking, keine Daten-Kopie nötig!
-  unsigned long last_valid_data_timestamp_{0};
-  bool has_valid_data_{false};
-  
-  // Konstanten
-  static const unsigned long TIMEOUT_MS = 180000; // 3 Minuten
 
   // Private Hilfsmethoden
   void publish_sensors_();
-  bool is_data_stale_();
 };
 
 }  // namespace sensordlbus
