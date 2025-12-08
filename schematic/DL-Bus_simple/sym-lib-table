@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "ESP32-Wemos-D1-Mini")(type "KiCad")(uri "C:/1_Data/12_EDV/0_Smarthome/Steinstr/UVR67/ESPHome-TA-UVR67/schematic/libraries/wemos-d1-mini/esp32-wemos-d1-mini.kicad_sym")(options "")(descr ""))
+)
