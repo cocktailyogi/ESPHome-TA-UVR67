@@ -114,13 +114,13 @@ void RoomTemperatureNumber::setup() {
   float default_value = 19.0f;
   this->publish_state(default_value);
   if (this->parent_ != nullptr && this->parent_->get_dlbus() != nullptr) {
-    this->parent_->get_dlbus()->roomTemperatureRASPT = default_value;
+    this->parent_->get_dlbus()->roomTemperatureRASDL = default_value;
   }
 }
 
 void RoomTemperatureNumber::control(float value) {
   if (this->parent_ != nullptr && this->parent_->get_dlbus() != nullptr) {
-    this->parent_->get_dlbus()->roomTemperatureRASPT = value;
+    this->parent_->get_dlbus()->roomTemperatureRASDL = value;
   }
   this->publish_state(value);
 }

@@ -34,7 +34,7 @@ public:
   };
 
   HeatingMode currentHeatingMode;
-  float roomTemperatureRASPT;
+  float roomTemperatureRASDL;
 
   // Das zuletzt empfangene Frame
   DL_Bus_Frame lastFrame;

@@ -13,7 +13,7 @@ DLBus::DLBus(uint8_t input_pin, uint8_t output_pin)
     DL_Bus_Buffer[i] = 0xFF;
   }
   currentHeatingMode = HeatingMode::NORMAL;
-  roomTemperatureRASPT = 19.8;
+  roomTemperatureRASDL = 19.8;
   // set TX-Pin to inactive state
   pinMode(DL_Input_Pin, INPUT);
   pinMode(DL_Output_Pin, OUTPUT);
@@ -389,11 +389,11 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
     das Vorzeichenbit invertiert darstellt. 
     */
     if (sensorAddress == 0x1B) {
-        // RAS-PT
+        // RAS-DL
         delay(4); // min. 20ms specified in datasheet
         byte Datenkennzeichnung = 0x01; // TempSensor
         //encode room temperature
-        int16_t dataWord = (int16_t)(roomTemperatureRASPT * 10.0f);
+        int16_t dataWord = (int16_t)(roomTemperatureRASDL * 10.0f);
         
         byte DatenbyteLow = dataWord & 0xFF;
         byte DatenbyteHigh = (dataWord >> 8) & 0xFF;
