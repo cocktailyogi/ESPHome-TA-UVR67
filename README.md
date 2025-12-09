@@ -1,9 +1,9 @@
 # sensordlbus
-ESPHome Component for DL-BUS of Heating Controller UVR67 from "Technische Alternative"
+ESPHome Component and Home Assistant integration for DLbus of Heating Controller UVR67 from "Technische Alternative"
 
 ## 🎯 Overview
 
-This KiCad project provides a simple hardware interface for communicating with DL-Bus devices. It has been tested with the UVR67 controller and has been running flawlessly for years.
+This KiCad project provides a simple hardware interface for communicating with DLbus devices. It has been tested with the UVR67 controller and has been running flawlessly for years.
 
 ![bare minimum DLbus Interface](schematic/bareMinimal_DLbus.png)
 [Dokumentation Schematic](schematic)
@@ -16,15 +16,15 @@ The hardware design is intentionally kept as simple as possible, using component
 
 - **UVR67** - Multiple years of stable operation
 - UVR1611 - should work, minor changes maybe needed
-- Roomtemperaturesensor RAS-DL
+- Room temperature sensor RAS-DL
 
 ## Features
 
-- interruptdriven Aquisition
-- read Datalogframe from UVRR67 (UVR1611)
+- Interrupt-driven acquisition
+- read Datalogframe from UVR67 (UVR1611)
 - read Temperature sensors
 - read Outputs
-- simulate Roomtemperaturesensor RAS-DL
+- simulate Room temperature sensor RAS-DL
 - control Heatingmode in UVR
 - send Roomtemperature to UVR
 
@@ -35,14 +35,14 @@ The hardware design is intentionally kept as simple as possible, using component
 ## 📁 Project Contents
 
 - Arduino-lib for ESP32 (DLBus)
-- ESPhome-Component with integration for Home Assitant
+- ESPhome-Component with integration for Home Assistant
 - KiCad schematic files
 
-## Installation on HomeAssistant
+## Installation on Home Assistant
 
 - Enable Datalogging to DLbus in UVR67
 - Build ESP32 with DLbus-interface (bare minimal schematic included, read warning!)
-- integrate your ESP32 into Homeassistant/ESPhome (there are other tutorials, which cover this step)
+- integrate your ESP32 into Home Assistant/ESPhome (there are other tutorials, which cover this step)
 - add this to your yaml-config in ESPhome Builder. Make sure to configure your GPIOs properly.
 
 ````yaml
