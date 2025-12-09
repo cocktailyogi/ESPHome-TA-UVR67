@@ -93,4 +93,6 @@ select:
     heating_mode:
       name: "Heatingmode RAS-DL"
 ````​
-````
+
+## Credits
+- Compand Technische Alternative for handing me over Interfacespecification
