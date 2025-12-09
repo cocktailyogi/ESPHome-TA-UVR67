@@ -1,5 +1,5 @@
 #include "DLBus.h"
-#include "esphome/core/log.h"
+//#include "esphome/core/log.h"
 
 static const char *TAG = "DLBus";
 DLBus *DLBus::instance = nullptr;
@@ -94,7 +94,7 @@ bool DLBus::aquireByte(unsigned long duration){
     if (bitCount > 10) {
         //error -> reset
         resetManchesterBuffers();
-        ESP_LOGI(TAG, "DLBus::aquireByte(): bitCount > 10");
+        //ESP_LOGI(TAG, "DLBus::aquireByte(): bitCount > 10");
     }
     return false;
 }
@@ -184,7 +184,7 @@ void DLBus::handleInterrupt() {
                         //ESP_LOGI(TAG, "DLBus::handleInterrupt(): captureState::RECIEVE_SLAVEREQUEST set");
                     }
                     else {
-                        ESP_LOGI(TAG, "DLBus::handleInterrupt(): FLAG_NEW_SLAVEREQUEST_PENDING still set");
+                        //ESP_LOGI(TAG, "DLBus::handleInterrupt(): FLAG_NEW_SLAVEREQUEST_PENDING still set");
                     }
                 }
                 else if (DL_Bus_Buffer[0] == 0x80) {
@@ -194,12 +194,12 @@ void DLBus::handleInterrupt() {
                         //ESP_LOGI(TAG, "DLBus::handleInterrupt(): captureState::RECIEVE_DATAFRAME set");
                     }
                     else {
-                        ESP_LOGI(TAG, "DLBus::handleInterrupt(): FLAG_NEW_DATAFRAME_PENDING still set");
+                        //ESP_LOGI(TAG, "DLBus::handleInterrupt(): FLAG_NEW_DATAFRAME_PENDING still set");
                     }
                 }
                 else {
                     resetManchesterBuffers();
-                    ESP_LOGI(TAG, "DLBus::handleInterrupt(): Unknown MSGFRAME_SWITCH=0x%02X", DL_Bus_Buffer[0]);
+                    //ESP_LOGI(TAG, "DLBus::handleInterrupt(): Unknown MSGFRAME_SWITCH=0x%02X", DL_Bus_Buffer[0]);
                     //ESP_LOGI(TAG, "DLBus::handleInterrupt(): DL_Bus_Buffer[0]=0x%02X", DL_Bus_Buffer[0]);
                 }
             }
@@ -220,7 +220,7 @@ void DLBus::handleInterrupt() {
                 }
                 else {
                   // error exit
-                  ESP_LOGI(TAG, "Dataframe Checksum Error");
+                  //ESP_LOGI(TAG, "Dataframe Checksum Error");
                   resetManchesterBuffers();
                   //ESP_LOGI(TAG, "Buffer[0]=0x%02X, Buffer[1]=0x%02X", DL_Bus_Buffer[0], DL_Bus_Buffer[1]);
                 }
@@ -253,7 +253,7 @@ void DLBus::handleInterrupt() {
             break;
           
         default:
-            ESP_LOGI(TAG, "DLBus::handleInterrupt(): Unknown currentCaptureState=0x%02X", currentCaptureState);
+            //ESP_LOGI(TAG, "DLBus::handleInterrupt(): Unknown currentCaptureState=0x%02X", currentCaptureState);
             break;
     }
     /*
@@ -427,7 +427,7 @@ void DLBus::sensorSlaveRespond(byte sensorAddress){
         //ESP_LOGI(TAG, "RAS-PT request processed");
     }
     else {
-        ESP_LOGI(TAG, "unknown Sensor-Address: 0x%02X", sensorAddress);
+        //ESP_LOGI(TAG, "unknown Sensor-Address: 0x%02X", sensorAddress);
     }
     return;
 }
