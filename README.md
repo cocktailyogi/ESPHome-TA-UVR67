@@ -95,4 +95,4 @@ select:
 ````​
 
 ## Credits
-- Compand Technische Alternative for handing me over Interfacespecification
+- Company "Technische Alternative" for handing me over Interfacespecification
