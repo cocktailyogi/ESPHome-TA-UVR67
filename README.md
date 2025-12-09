@@ -45,7 +45,7 @@ The hardware design is intentionally kept as simple as possible, using component
 - integrate your ESP32 into Home Assistant/ESPhome (there are other tutorials, which cover this step)
 - add this to your yaml-config in ESPhome Builder. Make sure to configure your GPIOs properly.
 
-````yaml
+```yaml
 sensordlbus:
   id: dlbus_component
   dlbus_rx_pin: GPIO27
@@ -92,7 +92,7 @@ select:
     sensordlbus_id: dlbus_component
     heating_mode:
       name: "Heatingmode RAS-DL"
-````​
+```
 
 ## Credits
 - Company "Technische Alternative" for handing me over Interfacespecification
