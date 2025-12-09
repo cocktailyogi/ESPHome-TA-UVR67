@@ -15,6 +15,8 @@ This design is intentionally kept as simple as possible, using components that w
 ## ✅ Tested Hardware
 
 - **UVR67** - Multiple years of stable operation
+- UVR1611 - should work
+- other DLbus-Devices - should work, if DlBus runs on 12V
 
 ## 📁 Project Contents
 
