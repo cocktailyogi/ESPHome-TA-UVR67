@@ -1,12 +1,12 @@
 # sensordlbus
-ESPHome Component for DL-BUS of Heating Controller UVR67 from "Technishce Alternative"
+ESPHome Component for DL-BUS of Heating Controller UVR67 from "Technische Alternative"
 
 ## 🎯 Overview
 
 This KiCad project provides a simple hardware interface for communicating with DL-Bus devices. It has been tested with the UVR67 controller and has been running flawlessly for years.
 
 ![bare minimum DLbus Interface](schematic/bareMinimal_DLbus.png)
-[Dokumentation Schematic](schematic/README.md)
+[Dokumentation Schematic](schematic)
 
 ## ⚠️ Warning
 
